@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import util.Logger;
+import util.Url;
 
+import common.Address;
 import common.Domain;
 import common.Link;
  
@@ -21,6 +23,7 @@ public class DatabaseHelper {
  
     public static final String CREATE_DOMAINS_TABLE = "CREATE TABLE IF NOT EXISTS domains (domain_url varchar(2000) PRIMARY KEY NOT NULL UNIQUE, search_depth INTEGER, date_visited INTEGER, accepted INTEGER )";
     public static final String CREATE_LINKS_TABLE = "CREATE TABLE IF NOT EXISTS links (link_id INTEGER PRIMARY KEY AUTOINCREMENT, domain_url varchar(2000), link_url varchar(2000) NOT NULL UNIQUE, link_depth INTEGER, date_visited INTEGER, visits INTEGER, hit_count INTEGER, link_count INTEGER , flags VARCHAR(50)) ";
+    public static final String CREATE_ADDRESS_TABLE = "CREATE TABLE IF NOT EXISTS address (address_id INTEGER PRIMARY KEY AUTOINCREMENT, cityCode varchar(6), city varchar(2000), street varchar(2000), buildingNo INTEGER, apartamentNo INTEGER, blob varchar(5000), count INTEGER, timestamp INTEGER, domain_url varchar(2000), link_url varchar(2000) ) ";
     
     private Connection conn;
     private Statement stat;
@@ -42,11 +45,14 @@ public class DatabaseHelper {
             stat = conn.createStatement();
         	stat.execute(CREATE_DOMAINS_TABLE);
             stat.execute(CREATE_LINKS_TABLE);
+            stat.execute(CREATE_ADDRESS_TABLE);
         } catch (SQLException e) {
             Logger.error("Blad przy inicjalizacji bazy:", e);
         }
         Logger.info("DB Engine initialized");
     }
+    
+    //--- DOMAIN ---
     
     public ArrayList<Domain> insertDomainsFromSet(List<Domain> domainSet)
     {
@@ -80,7 +86,7 @@ public class DatabaseHelper {
             prepStmt.setString(1, domain_url);
             prepStmt.setInt(2, search_depth);
             prepStmt.setLong(3, System.currentTimeMillis() );
-            prepStmt.setLong(4, accepted );
+            prepStmt.setInt(4, accepted );
             prepStmt.execute();
         } catch (SQLException e) {
             Logger.error("Error on domain insert", e);
@@ -89,6 +95,114 @@ public class DatabaseHelper {
         Logger.info("Domain "+domain_url+" inserted");
         return true;
     }
+
+    public ArrayList<Domain> getDomains() {
+        ArrayList<Domain> domains = new ArrayList<Domain>();
+        try {
+            ResultSet result = stat.executeQuery("SELECT * FROM domains");
+            
+            long timestamp;
+            int search_depth, accepted;
+            String domain_url;
+            
+            while(result.next()) {
+                domain_url = result.getString("domain_url");
+                timestamp = result.getLong("date_visited");
+                search_depth = result.getInt("search_depth");
+                accepted = result.getInt("accepted");
+                domains.add(new Domain(domain_url, timestamp, search_depth, accepted));
+            }
+        } catch (SQLException e) {
+        	Logger.error("Error fetching domains: ",e);
+        	return null;
+        }
+        return domains;
+    }
+    
+    //--- ADDRESS ---
+    public ArrayList<Address> insertAddressesFromSet(List<Address> addressSet)
+    {
+    	ArrayList<Address> notAdded = new ArrayList<Address>();
+    	
+    	if(addressSet.isEmpty()){
+    		Logger.info("No new address");
+    		return notAdded;
+    	}
+    	
+    	for (Address address : addressSet) {
+			if(!insertAddress(address))
+			{
+				Logger.warn("Skipping address: "+address.toString());
+				notAdded.add(address);	
+			}
+		}
+    	
+    	return notAdded;
+    }
+    
+
+    public boolean insertAddress(Address a) {
+        return insertAddress(a.getCityCode(), a.getCity(), a.getStreet(), a.getDomain(), a.getLink().toString() , a.getBlob(), a.getTimestamp(), a.getBuildingNo(), a.getApartamentNo(), a.getCount());
+    }    
+    public boolean insertAddress( String cityCode, String city, String street, String domain, String link, String blob, long timestamp, int buildingNo, int apartamentNo, int count) {
+        try {
+            PreparedStatement prepStmt = conn.prepareStatement("insert or replace into address values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+            prepStmt.setString(1, cityCode);
+            prepStmt.setString(2, city);
+            prepStmt.setString(3, street);
+            prepStmt.setString(4, domain);
+            prepStmt.setString(5, link);
+            prepStmt.setString(6, blob);
+            prepStmt.setLong(7, timestamp );
+            prepStmt.setInt(8, buildingNo );
+            prepStmt.setInt(9, apartamentNo );
+            prepStmt.setInt(10, count );
+            prepStmt.execute();
+        } catch (SQLException e) {
+            Logger.error("Error on address insert", e);
+            return false;
+        }
+        Logger.info("Address: "+cityCode+" "+city+" ul."+street+" "+buildingNo+"/"+apartamentNo+" inserted");
+        return true;
+    }
+
+
+    public ArrayList<Address> getAddresses(Domain domain) {
+    	return getAddresses(domain.getUrl().toString());
+    }
+    
+    public ArrayList<Address> getAddresses(String domain_url) {
+        ArrayList<Address> addresses = new ArrayList<Address>();
+        try {
+            ResultSet result = stat.executeQuery("SELECT * FROM address WHERE domain_url LIKE '"+domain_url+"'");
+            
+        	String cityCode, city, street, domain, blob, link;
+        	long timestamp;
+        	int addressId, buildingNo, apartamentNo, count;
+            
+            while(result.next()) {
+                addressId = result.getInt("addressId");
+            	cityCode = result.getString( "cityCode" );
+                city = result.getString( "city" );
+                street = result.getString( "street" );
+                domain = result.getString( "domain" );
+                link = result.getString( "link" );
+                blob = result.getString( "blob" );
+                timestamp = result.getLong( "timestamp" );
+                buildingNo = result.getInt( "buildingNo" );
+                apartamentNo = result.getInt( "apartamentNo" );
+                count = result.getInt( "count" );
+                addresses.add(new Address(addressId,cityCode,city,street,domain,link,blob,timestamp,buildingNo,apartamentNo,count));
+            }
+        } catch (SQLException e) {
+        	Logger.error("Error fetching addresses: ",e);
+        	return null;
+        }
+        return addresses;
+    }
+
+    
+    //--- LINK ---
     
     public ArrayList<Link> insertLinksFromSet(List<Link> linkSet)
     {
@@ -143,29 +257,6 @@ public class DatabaseHelper {
     	
     	return insertLink(domain_url, link_url, link_depth, visits, hit_count, link_count, flags, timestamp);
 	        
-    }
-    
-    public ArrayList<Domain> getDomains() {
-        ArrayList<Domain> domains = new ArrayList<Domain>();
-        try {
-            ResultSet result = stat.executeQuery("SELECT * FROM domains");
-            
-            long timestamp;
-            int search_depth, accepted;
-            String domain_url;
-            
-            while(result.next()) {
-                domain_url = result.getString("domain_url");
-                timestamp = result.getLong("date_visited");
-                search_depth = result.getInt("search_depth");
-                accepted = result.getInt("accepted");
-                domains.add(new Domain(domain_url, timestamp, search_depth, accepted));
-            }
-        } catch (SQLException e) {
-        	Logger.error("Error fetching domains: ",e);
-        	return null;
-        }
-        return domains;
     }
 
     public ArrayList<Link> getLinks(Domain domain) {

@@ -14,12 +14,12 @@ import util.Url;
 
 import common.Domain;
 import common.Link;
-import common.LinkSet;
+import common.SeekerData;
 
 public class SeekerThreadPool {
 
 	private static final SeekerThreadPool instance = new SeekerThreadPool();
-	private static ExecutorService threadPool = Executors.newFixedThreadPool(15);
+	private static ExecutorService threadPool = Executors.newFixedThreadPool(5);
 	
 	private static List<Url> processedUrls = Collections.synchronizedList(new ArrayList<Url>());
 	private static List<Url> brokenUrls = Collections.synchronizedList(new ArrayList<Url>());
@@ -74,7 +74,7 @@ public class SeekerThreadPool {
 		if(!l.getUrl().inDomain(l.getDomainUrl()))
 		{
 			Logger.warn(l.getUrl() + " - Poza domena - dodano nowa domene");
-			LinkSet.addNewDomain(new Domain(l));
+			SeekerData.addNewDomain(new Domain(l));
 			return false;
 		}
 		if(l.getLinkDepth() > maxDepth ){
@@ -107,7 +107,6 @@ public class SeekerThreadPool {
 	}
 	
 	public static void reset(){
-		//shutdown();
 		brokenUrls.clear();
 		processedUrls.clear();
 	}

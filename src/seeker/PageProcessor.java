@@ -8,10 +8,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import parser.ParserThreadPool;
+
 import util.Logger;
 
 import common.Link;
-import common.LinkSet;
+import common.SeekerData;
 
 public class PageProcessor implements Runnable {
 
@@ -72,7 +74,9 @@ public class PageProcessor implements Runnable {
 		
 		link.setLinkCount(newLinks.size());
 		
-		LinkSet.addFinishedLink(link);
+		ParserThreadPool.execute(link, page);
+		
+		SeekerData.addFinishedLink(link);
 				
 		SeekerThreadPool.execute(newLinks);
 		
