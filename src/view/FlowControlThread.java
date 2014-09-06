@@ -32,6 +32,34 @@ public class FlowControlThread implements Runnable{
         this.addressFrame = new AddressFrame(dbConnection);
         
         
+
+        
+    }
+    
+    public void run() {
+
+        //Show progress frame
+        showProgressFrame();
+        
+        //Show address frame
+        showAddressFrame();
+
+    }
+    
+    private void showAddressFrame(){
+        
+        addressFrame.prepare();
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                addressFrame.setVisible(true);
+            }
+        });
+        
+    }
+    
+    private void showProgressFrame(){
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
@@ -39,10 +67,6 @@ public class FlowControlThread implements Runnable{
                 progressFrame.setVisible(true);
             }
         });
-        
-    }
-    
-    public void run() {
         
         //Wait until seeking is over
         while( 	SeekerThreadPool.counter.get() > 0 )
@@ -63,16 +87,6 @@ public class FlowControlThread implements Runnable{
         }
         
         //Hide progress
-        progressFrame.setVisible(false);
-
-        //Show address frame
-        addressFrame.prepare();
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                addressFrame.setVisible(true);
-            }
-        });
-
+        progressFrame.setVisible(false); 
     }
 }
