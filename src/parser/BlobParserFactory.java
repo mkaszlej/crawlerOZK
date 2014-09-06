@@ -1,6 +1,8 @@
 package parser;
 
 import common.Address;
+import common.Link;
+import util.Url;
 
 public class BlobParserFactory {
 	
@@ -9,12 +11,12 @@ public class BlobParserFactory {
         UniformParser
     }
  
-    public static BlobParser createParser(ParserType parserType, Address a) {
+    public static BlobParser createParser(ParserType parserType, Url domainUrl, Url linkUrl, String blob) {
         switch (parserType) {
             //case StepParser:
             //    return new BlobStepParser(a);
             case UniformParser:
-            	return new BlobUniformParser(a);
+            	return new BlobUniformParser(domainUrl, linkUrl, blob);
         }
         throw new IllegalArgumentException("Parser type " + parserType + " is not recognized.");
     }

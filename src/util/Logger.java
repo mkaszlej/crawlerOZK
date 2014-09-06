@@ -6,9 +6,9 @@ import common.Address;
 
 public class Logger {
 	
-	private static boolean showInfo = false;
-	private static boolean showWarn = false;
-	private static boolean showDebug = false;
+	private static boolean showInfo = true;
+	private static boolean showWarn = true;
+	private static boolean showDebug = true;
 	private static boolean showParser = false;
 	
 	public static void debug(String s)

@@ -12,9 +12,9 @@ import common.Address;
 import common.Link;
 import common.ParserData;
 
-public class DocumentPatternParser extends DocumentParser {
+public class DocumentCityCodeParser extends DocumentParser {
 	
-	public DocumentPatternParser(Link link, Document htmlData) {
+	public DocumentCityCodeParser(Link link, Document htmlData) {
 	    super(link, htmlData);
 	    this.addresses.clear();
 	    //this.data = Jsoup.parse(this.data).text();
@@ -27,13 +27,12 @@ public class DocumentPatternParser extends DocumentParser {
         
         // check all occurences
         while (matcher.find()) {
-          addresses.add(new Address( link, matcher.group().trim() ));
-          //System.out.println("FOUND: "+matcher.group().trim());
+          addresses.add(new Address( link, Jsoup.parse(matcher.group()).text() ));
         }
         
         for (Address address : addresses) {
             ParserData.addProcessedAddress(address);
-		}
+        }
 
         Logger.parser("["+addresses.size()+"] PARSED URI: "+htmlData.baseUri());
 

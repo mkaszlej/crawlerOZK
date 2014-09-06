@@ -33,6 +33,13 @@ public class Domain {
     	this.timestamp = l.getTimestamp();
     	this.accepted = 0;
     }
+
+    public Domain(String domain_url, int search_depth) {
+    	this.domain_url = new Url(domain_url);
+    	this.search_depth = search_depth;
+    	this.timestamp = System.currentTimeMillis();
+    	this.accepted = 1;
+    }
     
     public Url getUrl()
     {
@@ -70,5 +77,15 @@ public class Domain {
     public boolean isAccepted()
     {
     	return this.accepted > 0;
+    }
+
+    @Override
+    public String toString() {
+        return "["+search_depth+"] "+domain_url.toString();
+    }
+    
+    public String getMeta(){
+           return "PRZETWORZONE: "+Boolean.toString(accepted > 0)+"\n"+
+                  "DATA OSTATNIEJ ZMIANY: "+timestamp+"\n";           
     }
 }

@@ -1,25 +1,30 @@
 package parser;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.jsoup.Jsoup;
 
 import common.Address;
+import common.Link;
+import common.ParserData;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.jsoup.Jsoup;
+import util.Logger;
+import util.Url;
+import view.AddressFrame;
 
 public class BlobUniformParser extends BlobParser {
-
-
 	
-	
-	
-	public BlobUniformParser(Address address) {
-		super(address);
+	String cokolwiek = "([^0-9,<>/\\n\\(\\):]+)";
+        String budynek = "(\\d{1,5}[\\w]?)";
+        String mieszkanie = "([\\s\\\\/m\\.]+(\\d{0,5}))?";
+        String kod = regexCityCode;
+        String ul = "ul\\.\\s";
+        
+	public BlobUniformParser(Url domainUrl, Url linkUrl, String blob) {
+		super(domainUrl, linkUrl, blob);
 	}
 	
 	public void parse() {
 		//String blob = Jsoup.parse(address.getBlob()).text();
-		String blob = address.getBlob();
 		
 		System.out.println("@---  UNIFORM ---@\n"+blob);
 		
@@ -29,9 +34,6 @@ public class BlobUniformParser extends BlobParser {
 		miejskiOdwrUl(blob);
 		miejskiOdwr(blob);
 
-		wies1OdwrUl(blob);
-		wies1Odwr(blob);
-
 		wies2Ul(blob);
 		wies2(blob);
 
@@ -39,350 +41,309 @@ public class BlobUniformParser extends BlobParser {
 		wies2Odwr(blob);
 		
 		minimal(blob);
-	
 		
-		System.out.println("@--- /UNIFORM ---@");
+                ParserData.addBlobResult(parserResults);
+                                
+		System.out.println("@--- /UNIFORM ["+parserResults.size()+"] ---@");
 	}
 	
-	private void getNazwa(String blob, int start)
+	private String getNazwa(String blob, int start)
 	{
-		String nazwa = blob.substring(0,start);
-		System.out.println("NAZWA: "+ nazwa);
+                return  blob.substring(0,start);
 	}
 	
 	private void miejski(String blob) {
-	    //ul. Cicha 132 m. 16[1]
+	    
+            //ul. Cicha 132 m. 16[1]
 	    //62-200 Gniezno
-		String cokolwiek = "([^0-9,<>/\\n\\(\\):]+)";
-		String budynek = "(\\d{1,5}[\\w]?)";
-		String mieszkanie = "([\\s\\\\/m\\.]+(\\d{0,5}))?";
-		String kod = regexCityCode;
-		
-		String firstLine = cokolwiek+"\\s+"+budynek+mieszkanie;
-		String secondLine = "[\\s\\n,>]+"+kod+"\\s+"+cokolwiek;
-		
-		String standard = firstLine+secondLine;
-		Pattern pattern = Pattern.compile(standard, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(blob);
-        
-        // check all occurences
-        while (matcher.find()) {
-    		System.out.println("\n@miejski:");
-    		
-    		getNazwa(blob, matcher.start());
-    		
-    		System.out.println( matcher.group() );
-            System.out.println("ULICA: "+ matcher.group(1) );
-            System.out.println("DOM: "+ matcher.group(2) );
-            System.out.println("MIESZKANIE: "+ matcher.group(3) );
-            System.out.println("KOD: "+ matcher.group(5) );
-            System.out.println("MIEJSCOWOSC: "+ matcher.group(6) );
-        }
+            
+            String firstLine = cokolwiek+"\\s+"+budynek+mieszkanie;
+            String secondLine = "[\\s\\n,>]+"+kod+"\\s+"+cokolwiek;
+
+            String standard = firstLine+secondLine;
+            Pattern pattern = Pattern.compile(standard, Pattern.CASE_INSENSITIVE);
+            
+            Matcher matcher = pattern.matcher(blob);
+
+            // check all occurences
+            while (matcher.find()) {
+                System.out.println("\n@miejski:");
+                
+                String nazwa = getNazwa(blob, matcher.start());
+                String ulica = matcher.group(1);
+                String nrDomu = matcher.group(2);
+                String nrMieszkania = matcher.group(3);
+                String kodPocztowy = matcher.group(5);
+                String miejscowosc = matcher.group(6);
+                                
+                Address parsedAddress;
+                parsedAddress = new Address(nazwa, kodPocztowy, miejscowosc, ulica, nrDomu, nrMieszkania, domainUrl, linkUrl, blob );
+                Logger.info(parsedAddress.toString());
+                parserResults.add("Standardowy",parsedAddress);
+                
+/*              System.out.println("ULICA: "+ ulica );
+                System.out.println("DOM: "+ nrDomu );
+                System.out.println("MIESZKANIE: "+ nrMieszkania );
+                System.out.println("KOD: "+ kodPocztowy );
+                System.out.println("MIEJSCOWOSC: "+ miejscowosc );*/
+            }
                 
 	}
 
 	private void miejskiOdwr(String blob) {
 	    //62-200 Gniezno
 	    //ul. Cicha 132 m. 16
-		String cokolwiek = "([^0-9,<>/\\n\\(\\):]+)";
-		String budynek = "(\\d{1,5}[\\w]?)";
-		String mieszkanie = "([\\s\\\\/m\\.]+(\\d{0,5}))?";
-		String kod = regexCityCode;
 		
-		String firstLine = kod+"\\s+"+cokolwiek;
-		String secondLine = s+cokolwiek+"\\s+"+budynek+mieszkanie;
-		
-		String standard = firstLine+secondLine;
-		Pattern pattern = Pattern.compile(standard, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(blob);
-        
-        // check all occurences
-        while (matcher.find()) {
+            String firstLine = kod+"\\s+"+cokolwiek;
+            String secondLine = s+cokolwiek+"\\s+"+budynek+mieszkanie;
 
-    		System.out.println("\n@miejskiOdwr:");
-    		
-    		getNazwa(blob, matcher.start());
-    		
-    		System.out.println( matcher.group() );
-    		System.out.println("ULICA: "+ matcher.group(3) );
-            System.out.println("DOM: "+ matcher.group(4) );
-            System.out.println("MIESZKANIE: "+ matcher.group(5) );
-            System.out.println("KOD: "+ matcher.group(1) );
-            System.out.println("MIEJSCOWOSC: "+ matcher.group(2) );
-        }
+            String standard = firstLine+secondLine;
+            Pattern pattern = Pattern.compile(standard, Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(blob);
+        
+            // check all occurences
+            while (matcher.find()) {
+
+                System.out.println("\n@miejskiOdwr:");
+
+                String nazwa = getNazwa(blob, matcher.start());
+                String ulica = matcher.group(3);
+                String nrDomu = matcher.group(4);
+                String nrMieszkania = matcher.group(5);
+                String kodPocztowy = matcher.group(1);
+                String miejscowosc = matcher.group(2);
+                                
+                Address parsedAddress;
+                parsedAddress = new Address(nazwa, kodPocztowy, miejscowosc, ulica, nrDomu, nrMieszkania, domainUrl, linkUrl, blob );
+                Logger.info(parsedAddress.toString());
+                parserResults.add("Standardowy odwrócony",parsedAddress);
+                
+/*              System.out.println("ULICA: "+ ulica );
+                System.out.println("DOM: "+ nrDomu );
+                System.out.println("MIESZKANIE: "+ nrMieszkania );
+                System.out.println("KOD: "+ kodPocztowy );
+                System.out.println("MIEJSCOWOSC: "+ miejscowosc );*/
+                
+            }
                 
 	}
 
 	private void miejskiOdwrUl(String blob) {
 	    //62-200 Gniezno
 	    //ul. Cicha 132 m. 16
-		String cokolwiek = "([^0-9,<>/\\n\\(\\):]+)";
-		String budynek = "(\\d{1,5}[\\w]?)";
-		String mieszkanie = "([\\s\\\\/m\\.]+(\\d{0,5}))?";
-		String kod = regexCityCode;
-		String ul = "ul\\.\\s";
 		
-		String firstLine = kod+"\\s+"+cokolwiek;
-		String secondLine = s+ul+cokolwiek+"\\s+"+budynek+mieszkanie;
-		
-		String standard = firstLine+secondLine;
-		Pattern pattern = Pattern.compile(standard, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(blob);
+            String firstLine = kod+"\\s+"+cokolwiek;
+            String secondLine = s+ul+cokolwiek+"\\s+"+budynek+mieszkanie;
+
+            String standard = firstLine+secondLine;
+            Pattern pattern = Pattern.compile(standard, Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(blob);
         
         // check all occurences
-        while (matcher.find()) {
+            while (matcher.find()) {
 
-    		System.out.println("\n@miejskiOdwr:");
-    		
-    		getNazwa(blob, matcher.start());
-    		
-    		System.out.println( matcher.group() );
-    		System.out.println("ULICA: "+ matcher.group(3) );
-            System.out.println("DOM: "+ matcher.group(4) );
-            System.out.println("MIESZKANIE: "+ matcher.group(5) );
-            System.out.println("KOD: "+ matcher.group(1) );
-            System.out.println("MIEJSCOWOSC: "+ matcher.group(2) );
-        }
+                System.out.println("\n@miejskiOdwrUl:");
+
+                String nazwa = getNazwa(blob, matcher.start());
+                String ulica = matcher.group(3);
+                String nrDomu = matcher.group(4);
+                String nrMieszkania = matcher.group(5);
+                String kodPocztowy = matcher.group(1);
+                String miejscowosc = matcher.group(2);
+                                
+                Address parsedAddress;
+                parsedAddress = new Address(nazwa, kodPocztowy, miejscowosc, ulica, nrDomu, nrMieszkania, domainUrl, linkUrl, blob );
+                Logger.info(parsedAddress.toString());
+                parserResults.add("Standardowy odwrócony z ul.",parsedAddress);
+                               
+            }
                 
 	}
 	
 	private void miejskiUl(String blob) {
 	    //Janina Nowak
-		//ul. Sochacz 5 m. 16
+            //ul. Sochacz 5 m. 16
 	    //62-200 Gniezno
-		String cokolwiek = "([^0-9,<>/\\n\\(\\):]+)";
-		String ul = "ul\\.\\s";
-		String budynek = "(\\d{1,5}[\\w]?)";
-		String mieszkanie = "([\\s\\\\/m\\.]+(\\d{0,5}))?";
-		String kod = regexCityCode;
-		
-		String firstLine = ul+cokolwiek+"\\s+"+budynek+mieszkanie;
-		String secondLine = "[\\s\\n,>]+"+kod+"\\s+"+cokolwiek;
-		
-		String standard = firstLine+secondLine;
-		Pattern pattern = Pattern.compile(standard, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(blob);
-        
-        // check all occurences
-        while (matcher.find()) {
-    		System.out.println("\n@miejskiUl:");
 
-    		getNazwa(blob, matcher.start());
-    		
-    		System.out.println( matcher.group() );
-            System.out.println("ULICA: "+ matcher.group(1) );
-            System.out.println("DOM: "+ matcher.group(2) );
-            System.out.println("MIESZKANIE: "+ matcher.group(3) );
-            System.out.println("KOD: "+ matcher.group(5) );
-            System.out.println("MIEJSCOWOSC: "+ matcher.group(6) );
-        }
+            String firstLine = ul+cokolwiek+"\\s+"+budynek+mieszkanie;
+            String secondLine = "[\\s\\n,>]+"+kod+"\\s+"+cokolwiek;
+		
+            String standard = firstLine+secondLine;
+            Pattern pattern = Pattern.compile(standard, Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(blob);
+        
+            // check all occurences
+            while (matcher.find()) {
+                System.out.println("\n@miejskiUl:");
+
+                String nazwa = getNazwa(blob, matcher.start());
+                String ulica = matcher.group(1);
+                String nrDomu = matcher.group(2);
+                String nrMieszkania = matcher.group(3);
+                String kodPocztowy = matcher.group(5);
+                String miejscowosc = matcher.group(6);
+                                
+                Address parsedAddress;
+                parsedAddress = new Address(nazwa, kodPocztowy, miejscowosc, ulica, nrDomu, nrMieszkania, domainUrl, linkUrl, blob );
+                Logger.info(parsedAddress.toString());
+                parserResults.add("Standardowy z ul.",parsedAddress);
+                
+            }
                 
 	}	
 	
-	private void wies1Odwr(String blob) {
-	    //Janina Nowak
-	    //62-200 Gniezno
-		//Sochacz 5 m. 16
-		String cokolwiek = "([^0-9,<>/\\n\\(\\):]+)";
-		String budynek = "(\\d{1,5}[\\w]?)";
-		String mieszkanie = "([\\s\\\\/m\\.]+(\\d{0,5}))?";
-		String kod = regexCityCode;
-		
-		String secondLine = "[\\s\\n,>]+"+kod+"\\s+"+cokolwiek;
-		String thirdLine = s+cokolwiek+"\\s+"+budynek+mieszkanie;
-		
-		String standard = secondLine+thirdLine;
-		Pattern pattern = Pattern.compile(standard, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(blob);
-        
-        // check all occurences
-        while (matcher.find()) {
-    		System.out.println("\n@wies1odwr:");
-
-    		getNazwa(blob, matcher.start());
-    		
-    		System.out.println( matcher.group() );
-            System.out.println("ULICA: "+ matcher.group(3) );
-            System.out.println("DOM: "+ matcher.group(4) );
-            System.out.println("MIESZKANIE: "+ matcher.group(5) );
-            System.out.println("KOD: "+ matcher.group(1) );
-            System.out.println("MIEJSCOWOSC: "+ matcher.group(2) );
-        }
-                
-	}
-
-	private void wies1OdwrUl(String blob) {
-	    //Janina Nowak
-	    //62-200 Gniezno
-		//ul. Sochacz 5 m. 16
-		
-		String secondLine = "[\\s\\n,>]+"+kod+"\\s+"+cokolwiek;
-		String thirdLine = s+ul+cokolwiek+"\\s+"+budynek+mieszkanie;
-		
-		String standard = secondLine+thirdLine;
-		Pattern pattern = Pattern.compile(standard, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(blob);
-        
-        // check all occurences
-        while (matcher.find()) {
-    		System.out.println("\n@wies1odwrUl:");
-
-    		getNazwa(blob, matcher.start());
-    		
-    		System.out.println( matcher.group() );
-            System.out.println("ULICA: "+ matcher.group(3) );
-            System.out.println("DOM: "+ matcher.group(4) );
-            System.out.println("MIESZKANIE: "+ matcher.group(5) );
-            System.out.println("KOD: "+ matcher.group(1) );
-            System.out.println("MIEJSCOWOSC: "+ matcher.group(2) );
-        }
-                
-	}
-	
 	private void wies2(String blob) {
 	    //Janina Nowak
-		//Sochaczewska
+            //Sochaczewska
 	    //62-200 Gniezno
-		String cokolwiek = "([^0-9,<>/\\n\\(\\):]+)";
-		String budynek = "(\\d{1,5}[\\w]?)";
-		String mieszkanie = "([\\s\\\\/m\\.]+(\\d{0,5}))?";
-		String kod = regexCityCode;
 		
-		String secondLine = s+cokolwiek;
-		String thirdLine = "[\\s\\n,>]+"+kod+"\\s+"+cokolwiek;
+            String secondLine = s+cokolwiek;
+            String thirdLine = "[\\s\\n,>]+"+kod+"\\s+"+cokolwiek;
 		
-		String standard = secondLine+thirdLine;
-		Pattern pattern = Pattern.compile(standard, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(blob);
+            String standard = secondLine+thirdLine;
+            Pattern pattern = Pattern.compile(standard, Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(blob);
         
-        // check all occurences
-        while (matcher.find()) {
-    		System.out.println("\n@wies2:");
-    		
-    		getNazwa(blob, matcher.start());
-    		
-            System.out.println( matcher.group() );
-            System.out.println("ULICA: "+ matcher.group(1) );
-            System.out.println("KOD: "+ matcher.group(2) );
-            System.out.println("MIEJSCOWOSC: "+ matcher.group(3) );
-        }
-                
+            // check all occurences
+            while (matcher.find()) {
+                System.out.println("\n@wies2:");
+
+                String nazwa = getNazwa(blob, matcher.start());
+                String ulica = matcher.group(1);
+                String nrDomu = null;
+                String nrMieszkania = null;
+                String kodPocztowy = matcher.group(2);
+                String miejscowosc = matcher.group(3);
+
+                Address parsedAddress;
+                parsedAddress = new Address(nazwa, kodPocztowy, miejscowosc, ulica, nrDomu, nrMieszkania, domainUrl, linkUrl, blob );
+                Logger.info(parsedAddress.toString());
+                parserResults.add("Bez nr domu/mieszkania",parsedAddress);
+
+
+            }
+
 	}
 	
 	private void wies2Ul(String blob) {
 	    //Janina Nowak
-		//ul. Sochaczewska
+            //ul. Sochaczewska
 	    //62-200 Gniezno
-		String cokolwiek = "([^0-9,<>/\\n\\(\\):]+)";
-		String budynek = "(\\d{1,5}[\\w]?)";
-		String mieszkanie = "([\\s\\\\/m\\.]+(\\d{0,5}))?";
-		String ul = "ul\\.\\s";
-		String kod = regexCityCode;
-		
-		String secondLine = s+ul+cokolwiek;
-		String thirdLine = "[\\s\\n,>]+"+kod+"\\s+"+cokolwiek;
-		
-		String standard = secondLine+thirdLine;
-		Pattern pattern = Pattern.compile(standard, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(blob);
+
+            String secondLine = s+ul+cokolwiek;
+            String thirdLine = "[\\s\\n,>]+"+kod+"\\s+"+cokolwiek;
+
+            String standard = secondLine+thirdLine;
+            Pattern pattern = Pattern.compile(standard, Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(blob);
         
-        // check all occurences
-        while (matcher.find()) {
-    		System.out.println("\n@wies2Ul:");
-    		
-    		getNazwa(blob, matcher.start());
-    		
-    		System.out.println( matcher.group() );
-            System.out.println("ULICA: "+ matcher.group(1) );
-            System.out.println("KOD: "+ matcher.group(2) );
-            System.out.println("MIEJSCOWOSC: "+ matcher.group(3) );
-        }
+            // check all occurences
+            while (matcher.find()) {
+                System.out.println("\n@wies2Ul:");
+
+                String nazwa = getNazwa(blob, matcher.start());
+                String ulica = matcher.group(1);
+                String nrDomu = null;
+                String nrMieszkania = null;
+                String kodPocztowy = matcher.group(2);
+                String miejscowosc = matcher.group(3);
+
+                Address parsedAddress;
+                parsedAddress = new Address(nazwa, kodPocztowy, miejscowosc, ulica, nrDomu, nrMieszkania, domainUrl, linkUrl, blob );
+                Logger.info(parsedAddress.toString());
+                parserResults.add("Bez nr domu/mieszkania z ul.",parsedAddress);
+            }
                 
 	}
 	
 	private void wies2Odwr(String blob) {
 	    //Janina Nowak
 	    //62-200 Gniezno
-		//Sochaczewska
-		String cokolwiek = "([^0-9,<>/\\n\\(\\):]+)";
-		String budynek = "(\\d{1,5}[\\w]?)";
-		String mieszkanie = "([\\s\\\\/m\\.]+(\\d{0,5}))?";
-		String kod = regexCityCode;
+            //Sochaczewska
 		
-		String secondLine = "[\\s\\n,>]+"+kod+"\\s+"+cokolwiek;
-		String thirdLine = s+cokolwiek;
-		
-		String standard = secondLine+thirdLine;
-		Pattern pattern = Pattern.compile(standard, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(blob);
+            String secondLine = "[\\s\\n,>]+"+kod+"\\s+"+cokolwiek;
+            String thirdLine = s+cokolwiek;
+
+            String standard = secondLine+thirdLine;
+            Pattern pattern = Pattern.compile(standard, Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(blob);
         
-        while (matcher.find()) {
-    		System.out.println("\n@wies2Odwr:");
-            
-    		getNazwa(blob, matcher.start());
-    		
-    		System.out.println( matcher.group() );
-            System.out.println("ULICA: "+ matcher.group(3) );
-            System.out.println("KOD: "+ matcher.group(1) );
-            System.out.println("MIEJSCOWOSC: "+ matcher.group(2) );
-        }
+            while (matcher.find()) {
+                System.out.println("\n@wies2Odwr:");
+     
+                String nazwa = getNazwa(blob, matcher.start());
+                String ulica = matcher.group(3);
+                String nrDomu = null;
+                String nrMieszkania = null;
+                String kodPocztowy = matcher.group(1);
+                String miejscowosc = matcher.group(2);
+
+                Address parsedAddress;
+                parsedAddress = new Address(nazwa, kodPocztowy, miejscowosc, ulica, nrDomu, nrMieszkania, domainUrl, linkUrl, blob );
+                Logger.info(parsedAddress.toString());
+                parserResults.add("Bez nr domu/mieszkania odwrócony",parsedAddress);
+                
+            }
                 
 	}
 
 	private void wies2OdwrUl(String blob) {
 	    //Janina Nowak
 	    //62-200 Gniezno
-		//ul. Sochaczewska
-		String cokolwiek = "([^0-9,<>/\\n\\(\\):]+)";
-		String budynek = "(\\d{1,5}[\\w]?)";
-		String mieszkanie = "([\\s\\\\/m\\.]+(\\d{0,5}))?";
-		String ul = "ul\\.\\s";
-		String kod = regexCityCode;
+            //ul. Sochaczewska
 		
-		String secondLine =kod+"\\s+"+cokolwiek;
-		String thirdLine = s+ul+cokolwiek;
-		
-		String standard = secondLine+thirdLine;
-		Pattern pattern = Pattern.compile(standard, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(blob);
+            String secondLine =kod+"\\s+"+cokolwiek;
+            String thirdLine = s+ul+cokolwiek;
+
+            String standard = secondLine+thirdLine;
+            Pattern pattern = Pattern.compile(standard, Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(blob);
         
-        while (matcher.find()) {
-    		System.out.println("\n@wies2OdwrUl:");
-    		
-    		getNazwa(blob, matcher.start());
-    		
-    		System.out.println( matcher.group() );
-            System.out.println("ULICA: "+ matcher.group(3) );
-            System.out.println("KOD: "+ matcher.group(1) );
-            System.out.println("MIEJSCOWOSC: "+ matcher.group(2) );
-        }
+            while (matcher.find()) {
+                System.out.println("\n@wies2OdwrUl:");
+
+                String nazwa = getNazwa(blob, matcher.start());
+                String ulica = matcher.group(3);
+                String nrDomu = null;
+                String nrMieszkania = null;
+                String kodPocztowy = matcher.group(1);
+                String miejscowosc = matcher.group(2);
+
+                Address parsedAddress;
+                parsedAddress = new Address(nazwa, kodPocztowy, miejscowosc, ulica, nrDomu, nrMieszkania, domainUrl, linkUrl, blob );
+                Logger.info(parsedAddress.toString());
+                parserResults.add("Bez nr domu/mieszkania odwrócony z ul.",parsedAddress);
+                
+            }
                 
 	}
 
 	private void minimal(String blob) {
 	    //Janina Nowak
 	    //62-200 Gniezno
-		String cokolwiek = "([^0-9,<>/\\n\\(\\):]+)";
-		String budynek = "(\\d{1,5}[\\w]?)";
-		String mieszkanie = "([\\s\\\\/m\\.]+(\\d{0,5}))?";
-		String kod = regexCityCode;
 		
-		String secondLine = "[\\s\\n,>]+"+kod+"\\s+"+cokolwiek;
-		
-		String standard = secondLine;
-		Pattern pattern = Pattern.compile(standard, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(blob);
+            String secondLine = "[\\s\\n,>]+"+kod+"\\s+"+cokolwiek;
+
+            String standard = secondLine;
+            Pattern pattern = Pattern.compile(standard, Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(blob);
         
-        // check all occurences
-        while (matcher.find()) {
-    		System.out.println("\n@minimal:");
-    		
-    		getNazwa(blob, matcher.start());
-    		
-    		System.out.println( matcher.group() );
-            System.out.println("KOD: "+ matcher.group(1) );
-            System.out.println("MIEJSCOWOSC: "+ matcher.group(2) );
-        }
+            // check all occurences
+            while (matcher.find()) {
+                System.out.println("\n@minimal:");
+
+                String nazwa = getNazwa(blob, matcher.start());
+                String ulica = null;
+                String nrDomu = null;
+                String nrMieszkania = null;
+                String kodPocztowy = matcher.group(1);
+                String miejscowosc = matcher.group(2);
+
+                Address parsedAddress;
+                parsedAddress = new Address(nazwa, kodPocztowy, miejscowosc, ulica, nrDomu, nrMieszkania, domainUrl, linkUrl, blob );
+                Logger.info(parsedAddress.toString());
+                parserResults.add("Kod i miasto",parsedAddress);
+            }
                 
 	}
 	

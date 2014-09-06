@@ -4,9 +4,9 @@ import util.Url;
 
 public class Address {
 
-	private String cityCode=null, city=null, street=null, domain=null, blob=null;
+        private String name=null, cityCode=null, city=null, street=null, domain=null, blob=null, buildingNo=null, apartamentNo=null;
 	private long timestamp;
-	private int addressId, buildingNo, apartamentNo, count;
+	private int addressId,  count;
 	private Url link;
 	
 
@@ -23,8 +23,8 @@ public class Address {
 	    if(!this.city.equals(other.city)) return false;
 	    if(!this.cityCode.equals(other.cityCode)) return false;
 	    if(!this.street.equals(other.street)) return false;
-	    if(!(this.buildingNo == other.buildingNo)) return false;
-	    if(!(this.apartamentNo == other.apartamentNo)) return false;
+	    if(!(this.buildingNo.equals(other.buildingNo))) return false;
+	    if(!(this.apartamentNo.equals(other.apartamentNo))) return false;
 	    return true;
 	  }
 	
@@ -37,7 +37,7 @@ public class Address {
 	}
 	
 	// Address z bazy danych
-    public Address(	 int addressId, String cityCode, String city, String street, String domain, String link, String blob, long timestamp, int buildingNo, int apartamentNo, int count) {
+    public Address( int addressId, String cityCode, String city, String street, String domain, String link, String blob, long timestamp, String buildingNo, String apartamentNo, int count) {
     	this.addressId = addressId;
     	this.cityCode = cityCode;
     	this.city = city;
@@ -60,6 +60,24 @@ public class Address {
     	this.timestamp = System.currentTimeMillis();
     	this.count = 1;
     }
+    
+    //Address podczas parsowania
+    public Address( String name, String kodPocztowy, String miejscowosc, String ulica, String nrDomu, String nrMieszkania, Url domainUrl, Url linkUrl, String blob )
+    {
+        this.name = name;
+        this.cityCode = kodPocztowy;
+        this.city = miejscowosc;
+        this.street = ulica;
+        
+        this.buildingNo = nrDomu;
+        this.apartamentNo = nrMieszkania;
+        
+        this.domain = domainUrl.toString();
+        this.link = linkUrl;
+        this.blob = blob;
+        this.count = 1;
+        this.timestamp = System.currentTimeMillis();             
+    }
 	   
     public String getCityCode() {
 		return cityCode;
@@ -69,7 +87,7 @@ public class Address {
 		return city;
 	}
     
-    public int getApartamentNo() {
+    public String getApartamentNo() {
 		return apartamentNo;
 	}
     
@@ -77,7 +95,7 @@ public class Address {
 		return blob;
 	}
     
-    public int getBuildingNo() {
+    public String getBuildingNo() {
 		return buildingNo;
 	}
     
@@ -105,8 +123,12 @@ public class Address {
 		this.count = count;
 		this.timestamp = System.currentTimeMillis();
 	}
+
+    public String getName() {
+        return name;
+    }
     
     public String toString(){
-    	return "[ADDRESS] SOURCE_URL: "+link.urlString+" BLOB:\n"+blob;
+    	return name+" ul. "+street+" "+buildingNo+"/"+apartamentNo+", "+cityCode+" "+city;
     }
 }

@@ -6,7 +6,7 @@ import java.util.List;
 
 public class SeekerData {
 
-	private static int initialCount = 0;
+        private static int initialCount = 0;
 	
 	private static List<Link> initialLinks = Collections.synchronizedList(new ArrayList<Link>());
 	private static List<Link> finishedLinks = Collections.synchronizedList(new ArrayList<Link>());
@@ -16,7 +16,7 @@ public class SeekerData {
 	SeekerData(){}
 	
 	public static String count(){
-		return "INITIAL LINKS: "+initialCount+"\nCURRENT SEARCH LINKS: "+finishedLinks.size()+"\nCURRENT SEARCH DOMAINS: "+ newDomains.size();
+		return ""+initialCount+" - linków z bazy danych\n"+finishedLinks.size()+" - linków w tym przeszukiwaniu\n"+ newDomains.size()+" - domen w tym przeszukaniu";
 	} 
 	
 	public static void loadLinkList(ArrayList<Link> links){

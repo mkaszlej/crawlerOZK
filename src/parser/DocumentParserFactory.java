@@ -7,13 +7,16 @@ import common.Link;
 public class DocumentParserFactory {
 	
 	public enum ParserType {
-        PatternParser
+        CityCodeParser,
+        StreetParser
     }
  
     public static DocumentParser createParser(ParserType parserType, Link link, Document data) {
         switch (parserType) {
-            case PatternParser:
-                return new DocumentPatternParser(link, data);
+            case CityCodeParser:
+                return new DocumentCityCodeParser(link, data);
+            case StreetParser:
+                return new DocumentStreetParser(link, data);
         }
         throw new IllegalArgumentException("Parser type " + parserType + " is not recognized.");
     }

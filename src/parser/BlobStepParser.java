@@ -2,41 +2,35 @@ package parser;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import common.Address;
+import util.Url;
 
 public class BlobStepParser extends BlobParser {
 
-	private int middlePoint;
 	private String city;
 	private String cityCode;
 	private String street;
 	private String buildingNo;
 	private String apartamentNo;
-	
-	
-	
-	public BlobStepParser(Address address) {
-		super(address);
-		this.middlePoint = address.getBlob().length()/2;
+		
+	public BlobStepParser(Url domainUrl, Url linkUrl, String blob) {
+		super(domainUrl, linkUrl, blob);
 	}
 	
 	public void parse() {
-		String blob = address.getBlob();
 		
-		System.out.println("@---STEP---\n"+blob);
+            System.out.println("@---STEP---\n"+blob);
 		
-		findCityCode(blob);
-    	System.out.println("###");
-		findCity(blob);
-    	System.out.println("###");		
-		findStreet(blob);
-    	System.out.println("###");
-		findBuildingNo(blob);
-    	System.out.println("###");
-		findApartamentNo(blob);
+            findCityCode(blob);
+            System.out.println("###");
+            findCity(blob);
+            System.out.println("###");		
+            findStreet(blob);
+            System.out.println("###");
+            findBuildingNo(blob);
+            System.out.println("###");
+            findApartamentNo(blob);
 
-		System.out.println("/@---STEP ---");
+            System.out.println("/@---STEP ---");
 	}
 	
 	private void findCityCode(String blob){

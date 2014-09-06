@@ -23,7 +23,7 @@ public class DatabaseHelper {
  
     public static final String CREATE_DOMAINS_TABLE = "CREATE TABLE IF NOT EXISTS domains (domain_url varchar(2000) PRIMARY KEY NOT NULL UNIQUE, search_depth INTEGER, date_visited INTEGER, accepted INTEGER )";
     public static final String CREATE_LINKS_TABLE = "CREATE TABLE IF NOT EXISTS links (link_id INTEGER PRIMARY KEY AUTOINCREMENT, domain_url varchar(2000), link_url varchar(2000) NOT NULL UNIQUE, link_depth INTEGER, date_visited INTEGER, visits INTEGER, hit_count INTEGER, link_count INTEGER , flags VARCHAR(50)) ";
-    public static final String CREATE_ADDRESS_TABLE = "CREATE TABLE IF NOT EXISTS address (address_id INTEGER PRIMARY KEY AUTOINCREMENT, cityCode varchar(6), city varchar(2000), street varchar(2000), buildingNo INTEGER, apartamentNo INTEGER, blob varchar(5000), count INTEGER, timestamp INTEGER, domain_url varchar(2000), link_url varchar(2000) ) ";
+    public static final String CREATE_ADDRESS_TABLE = "CREATE TABLE IF NOT EXISTS address (address_id INTEGER PRIMARY KEY AUTOINCREMENT, cityCode varchar(6), city varchar(2000), street varchar(2000), buildingNo varchar(20), apartamentNo varchar(20), blob varchar(5000), count INTEGER, timestamp INTEGER, domain_url varchar(2000), link_url varchar(2000) ) ";
     
     private Connection conn;
     private Statement stat;
@@ -144,7 +144,7 @@ public class DatabaseHelper {
     public boolean insertAddress(Address a) {
         return insertAddress(a.getCityCode(), a.getCity(), a.getStreet(), a.getDomain(), a.getLink().toString() , a.getBlob(), a.getTimestamp(), a.getBuildingNo(), a.getApartamentNo(), a.getCount());
     }    
-    public boolean insertAddress( String cityCode, String city, String street, String domain, String link, String blob, long timestamp, int buildingNo, int apartamentNo, int count) {
+    public boolean insertAddress( String cityCode, String city, String street, String domain, String link, String blob, long timestamp, String buildingNo, String apartamentNo, int count) {
         try {
             PreparedStatement prepStmt = conn.prepareStatement("insert or replace into address values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
             prepStmt.setString(1, cityCode);
@@ -154,8 +154,8 @@ public class DatabaseHelper {
             prepStmt.setString(5, link);
             prepStmt.setString(6, blob);
             prepStmt.setLong(7, timestamp );
-            prepStmt.setInt(8, buildingNo );
-            prepStmt.setInt(9, apartamentNo );
+            prepStmt.setString(8, buildingNo );
+            prepStmt.setString(9, apartamentNo );
             prepStmt.setInt(10, count );
             prepStmt.execute();
         } catch (SQLException e) {
@@ -176,9 +176,9 @@ public class DatabaseHelper {
         try {
             ResultSet result = stat.executeQuery("SELECT * FROM address WHERE domain_url LIKE '"+domain_url+"'");
             
-        	String cityCode, city, street, domain, blob, link;
+        	String cityCode, city, street, domain, blob, link, buildingNo, apartamentNo;
         	long timestamp;
-        	int addressId, buildingNo, apartamentNo, count;
+        	int addressId, count;
             
             while(result.next()) {
                 addressId = result.getInt("addressId");
@@ -189,8 +189,8 @@ public class DatabaseHelper {
                 link = result.getString( "link" );
                 blob = result.getString( "blob" );
                 timestamp = result.getLong( "timestamp" );
-                buildingNo = result.getInt( "buildingNo" );
-                apartamentNo = result.getInt( "apartamentNo" );
+                buildingNo = result.getString( "buildingNo" );
+                apartamentNo = result.getString( "apartamentNo" );
                 count = result.getInt( "count" );
                 addresses.add(new Address(addressId,cityCode,city,street,domain,link,blob,timestamp,buildingNo,apartamentNo,count));
             }

@@ -1,29 +1,41 @@
 package parser;
 
-import parser.BlobParserFactory.ParserType;
-import util.Logger;
 
 import common.Address;
+import common.Link;
+import parser.BlobParserFactory.ParserType;
+import util.Logger;
+import util.Url;
 
 public class BlobParserThread implements Runnable {
 
-	private Address address;
+    	private Url domainUrl;
+	private Url linkUrl;
+        private String blob;
 	
-	public BlobParserThread(Address address) {
-		this.address = address;
+	public BlobParserThread(Url domainUrl, Url linkUrl, String blob) {
+            this.domainUrl = domainUrl;
+            this.linkUrl = linkUrl;
+            this.blob = blob;
 	}
 	
 	public void run()
 	{
-		if(address == null || address.getBlob().isEmpty() ){
+		if( domainUrl == null || linkUrl == null || blob.isEmpty() ){
 			Logger.error("BLOBPARSERTHREAD address or blob not provided");
 			ParserThreadPool.counter.decrementAndGet();
 			return;
 		}
 		
 		for (ParserType type : BlobParserFactory.ParserType.values()) {
-			BlobParser p = BlobParserFactory.createParser(type, address);
-			p.parse();
+                    try{
+                        BlobParser p = BlobParserFactory.createParser(type, domainUrl, linkUrl, blob);
+                        p.parse();
+                    }
+                    catch(IllegalArgumentException e){
+                        Logger.error("Parser type error", e);
+                    }
+                    
 		}
 		
 		ParserThreadPool.counter.decrementAndGet();

@@ -5,6 +5,7 @@ import org.jsoup.nodes.Document;
 import parser.DocumentParserFactory.ParserType;
 
 import common.Link;
+import util.Logger;
 
 public class DocumentParserThread implements Runnable {
 
@@ -29,10 +30,17 @@ public class DocumentParserThread implements Runnable {
 	}
 	
 	public void invokeAllParsers(){
-		
+
 		for (ParserType type : DocumentParserFactory.ParserType.values()) {
-			DocumentParser p = DocumentParserFactory.createParser(type, link, document);
+
+                    try{
+                        DocumentParser p = DocumentParserFactory.createParser(type, link, document);
 			p.parse();
+                    }
+                    catch(IllegalArgumentException e){
+                        Logger.error("Parser type error", e);
+                    }
+                    
 		}
 		
 	}
