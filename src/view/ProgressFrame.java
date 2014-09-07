@@ -14,8 +14,10 @@ import database.DatabaseHelper;
 import java.awt.Cursor;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
 import java.util.Random;
 import javax.swing.JFrame;
+import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
 import parser.ParserThreadPool;
 import seeker.PageProcessor;
@@ -30,15 +32,18 @@ public class ProgressFrame extends javax.swing.JFrame implements PropertyChangeL
     
     private Domain domain;
     private Task task;
+    private DatabaseHelper dbConnection;
+    private final AddressFrame addressFrame;
     
     /**
      * Creates new form ProgressFrame
      */
-    public ProgressFrame(Domain domain_to_process) {
+    public ProgressFrame(DatabaseHelper db_connection, Domain domain_to_process) {
         this.domain = domain_to_process;
+        this.dbConnection = db_connection;
+        this.addressFrame = new AddressFrame(dbConnection);
         initComponents();
         myInit();
-        
     }
     
     private void myInit(){
@@ -47,15 +52,26 @@ public class ProgressFrame extends javax.swing.JFrame implements PropertyChangeL
     }
 
     public void updateStatus(){
-        jTextArea1.setText("Przetwarzanie domeny:\n"+domain.getUrl()+"\n\nWątków (pracujących i oczekujących):\n"+SeekerThreadPool.counter.get() +" - poszukujących\n"+ParserThreadPool.counter.get()+" - parsujących\n\n"+ParserData.getBlobResultSize()+" - znalezionych adresów\n\n"+SeekerData.count());
+        
+        final ProgressFrame instance = this;
+                
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                instance.getStatusArea().setText("Przetwarzanie domeny:\n"+domain.getUrl()+"\n\nWątków (pracujących i oczekujących):\n"+SeekerThreadPool.counter.get() +" - poszukujących\n"+ParserThreadPool.counter.get()+" - parsujących\n\n"+ParserData.getBlobResultSize()+" - znalezionych adresów\n\n"+SeekerData.count());
+            }
+        });
 		
     }
+    
+    public JTextArea getStatusArea(){
+        return jTextArea1;
+    };
     
     public void start(DatabaseHelper dbConnection, Domain domain){
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         // Instances of javax.swing.SwingWorker are not reusuable, so
         // we create new instances as needed.
-        task = new Task(dbConnection);
+        task = new Task();
         task.addPropertyChangeListener(this);
         task.execute();
         
@@ -103,7 +119,7 @@ public class ProgressFrame extends javax.swing.JFrame implements PropertyChangeL
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jScrollPane2)
-                    .addComponent(jProgressBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)
+                    .addComponent(jProgressBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 607, Short.MAX_VALUE)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING))
                 .addContainerGap())
         );
@@ -113,9 +129,9 @@ public class ProgressFrame extends javax.swing.JFrame implements PropertyChangeL
                 .addContainerGap()
                 .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -136,20 +152,27 @@ public class ProgressFrame extends javax.swing.JFrame implements PropertyChangeL
           int progress = (Integer) evt.getNewValue();
           jProgressBar1.setValue(progress);
           updateStatus();
-          jTextArea2.append( String.format("Completed %d%% of task.\n", task.getProgress() ));
         }
+    }
+    
+    private void showAddressFrame(){
+        addressFrame.prepare();
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                addressFrame.setVisible(true);
+            }
+        });
+        
     }
     
     // --------- DEFINE TASK ------ //
     
     
-  class Task extends SwingWorker<Void, Void> {
+  class Task extends SwingWorker<Void, String> {
     
       
-    private DatabaseHelper dbConnection;
-
-    public Task(DatabaseHelper db_connection) {
-        this.dbConnection = db_connection;
+    public Task() {
     }
 
     /*
@@ -164,36 +187,46 @@ public class ProgressFrame extends javax.swing.JFrame implements PropertyChangeL
         initSeeker();
 
         setProgress(5);
+        publish("Crawler zainicjowany.\n------------\n");
         
         SeekerData.loadLinkList(dbConnection.getLinks(domain));
         ParserData.loadAddressList(dbConnection.getAddresses(domain));
 
         setProgress(15);
-        
+        publish("Wczytano zawartość bazy danych dla domeny: "+domain.getUrl()+"\n------------\n");
+                
         SeekerThreadPool.setMaxDepth(domain.getSearchDepth());
         
         SeekerThreadPool.execute(new PageProcessor(initialLink));
+
+        publish("Rozpoczęto przeszukiwanie.\n------------\n");
         
         while( 	SeekerThreadPool.counter.get() > 0 ){
-            try{Thread.sleep(1000);}catch(Exception e){}
+            try{Thread.sleep(300);}catch(Exception e){}
+            updateStatus();
         }
 
         setProgress(60);
+        publish("Zakończono przeszukiwanie. Trwa parsowanie...\n------------\n");
         
         while( 	ParserThreadPool.counter.get() > 0 ){
-            try{Thread.sleep(1000);}catch(Exception e){}
+            try{Thread.sleep(300);}catch(Exception e){}
+            updateStatus();
         }
         
+        publish("Parsowanie zakończone. Trwa aktualizacja bazy crawlera...\n------------\n");
+                
         setProgress(80);
         
         updateDatabase();
 
         setProgress(100);
-                
-        Logger.info( "Zakonczono przetwarzanie domeny" );
+        publish("Zakonczono przetwarzanie domeny.\n------------\n" );
         
         return null;
     }
+
+
 
     private void initSeeker()
     {
@@ -217,9 +250,21 @@ public class ProgressFrame extends javax.swing.JFrame implements PropertyChangeL
      * Executed in event dispatching thread
      */
     @Override
+    protected void process(List<String> chunks) {
+        super.process(chunks); //To change body of generated methods, choose Tools | Templates.
+        for (String string : chunks) {
+            jTextArea2.append( string );
+        }
+    }
+    
+    /*
+     * Executed in event dispatching thread
+     */
+    @Override
     public void done() {
         setCursor(null); // turn off the wait cursor
         jTextArea1.append("Done!\n");
+        showAddressFrame();
     }
   }
     

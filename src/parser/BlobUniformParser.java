@@ -17,34 +17,34 @@ public class BlobUniformParser extends BlobParser {
         String budynek = "(\\d{1,5}[\\w]?)";
         String mieszkanie = "([\\s\\\\/m\\.]+(\\d{0,5}))?";
         String kod = regexCityCode;
-        String ul = "ul\\.\\s";
+        String ul = "ul\\.\\s?";
         
 	public BlobUniformParser(Url domainUrl, Url linkUrl, String blob) {
 		super(domainUrl, linkUrl, blob);
 	}
 	
 	public void parse() {
-		//String blob = Jsoup.parse(address.getBlob()).text();
-		
-		System.out.println("@---  UNIFORM ---@\n"+blob);
-		
-		miejskiUl(blob);
-		miejski(blob);
+            
+            System.out.println("@---  UNIFORM ---@\n"+blob);
 
-		miejskiOdwrUl(blob);
-		miejskiOdwr(blob);
+            miejskiUl(blob);
+            miejski(blob);
 
-		wies2Ul(blob);
-		wies2(blob);
+            miejskiOdwrUl(blob);
+            miejskiOdwr(blob);
 
-		wies2OdwrUl(blob);
-		wies2Odwr(blob);
-		
-		minimal(blob);
-		
-                ParserData.addBlobResult(parserResults);
-                                
-		System.out.println("@--- /UNIFORM ["+parserResults.size()+"] ---@");
+            wies2Ul(blob);
+            wies2(blob);
+
+            wies2OdwrUl(blob);
+            wies2Odwr(blob);
+
+            minimal(blob);
+
+            ParserData.addBlobResult(parserResults);
+
+            System.out.println("@--- /UNIFORM ["+parserResults.size()+"] ---@");
+
 	}
 	
 	private String getNazwa(String blob, int start)
