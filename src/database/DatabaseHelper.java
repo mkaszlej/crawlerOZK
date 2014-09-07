@@ -1,5 +1,8 @@
 package database;
 
+import common.Address;
+import common.Domain;
+import common.Link;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -8,20 +11,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
 import util.Logger;
-import util.Url;
-
-import common.Address;
-import common.Domain;
-import common.Link;
  
 public class DatabaseHelper {
  
     public static final String DRIVER = "org.sqlite.JDBC";
     public static final String DB_URL = "jdbc:sqlite:crawler.db";
  
-    public static final String CREATE_DOMAINS_TABLE = "CREATE TABLE IF NOT EXISTS domains (domain_url varchar(2000) PRIMARY KEY NOT NULL UNIQUE, search_depth INTEGER, date_visited INTEGER, accepted INTEGER )";
+    public static final String CREATE_DOMAINS_TABLE = "CREATE TABLE IF NOT EXISTS domains (domain_id INTEGER PRIMARY KEY AUTOINCREMENT, domain_url varchar(2000) NOT NULL UNIQUE, parent_url varchar(2000), search_depth INTEGER, date_visited INTEGER, visits INTEGER )";
     public static final String CREATE_LINKS_TABLE = "CREATE TABLE IF NOT EXISTS links (link_id INTEGER PRIMARY KEY AUTOINCREMENT, domain_url varchar(2000), link_url varchar(2000) NOT NULL UNIQUE, link_depth INTEGER, date_visited INTEGER, visits INTEGER, hit_count INTEGER, link_count INTEGER , flags VARCHAR(50)) ";
     public static final String CREATE_ADDRESS_TABLE = "CREATE TABLE IF NOT EXISTS address (address_id INTEGER PRIMARY KEY AUTOINCREMENT, cityCode varchar(6), city varchar(2000), street varchar(2000), buildingNo varchar(20), apartamentNo varchar(20), blob varchar(5000), count INTEGER, timestamp INTEGER, domain_url varchar(2000), link_url varchar(2000) ) ";
     
@@ -43,7 +40,7 @@ public class DatabaseHelper {
         try {
             conn = DriverManager.getConnection(DB_URL);
             stat = conn.createStatement();
-        	stat.execute(CREATE_DOMAINS_TABLE);
+            stat.execute(CREATE_DOMAINS_TABLE);
             stat.execute(CREATE_LINKS_TABLE);
             stat.execute(CREATE_ADDRESS_TABLE);
         } catch (SQLException e) {
@@ -64,29 +61,30 @@ public class DatabaseHelper {
     	}
     	
     	for (Domain domain : domainSet) {
-			if(!insertDomain(domain))
-			{
-				Logger.warn("Skipping domain: "+domain.getUrl());
-				notAdded.add(domain);	
-			}
-		}
+            if(!insertDomain(domain))
+            {
+                Logger.warn("Skipping domain: "+domain.getUrl());
+                notAdded.add(domain);	
+            }
+        }
     	
     	return notAdded;
     }
     
 
     public boolean insertDomain(Domain domain) {
-        return insertDomain(domain.getUrl().toString(), domain.getSearchDepth(), domain.getAccepted());
+        return insertDomain(domain.getUrl().toString(), domain.getParent_url().toString(), domain.getSearchDepth(), domain.getVisits());
     }
     
     
-    public boolean insertDomain(String domain_url, int search_depth, int accepted) {
+    public boolean insertDomain(String domain_url, String parent_url, int search_depth, int visits) {
         try {
-            PreparedStatement prepStmt = conn.prepareStatement("insert or replace into domains values (?, ?, ?, ?);");
+            PreparedStatement prepStmt = conn.prepareStatement("insert or replace into domains values (NULL, ?, ?, ?, ?, ?);");
             prepStmt.setString(1, domain_url);
-            prepStmt.setInt(2, search_depth);
-            prepStmt.setLong(3, System.currentTimeMillis() );
-            prepStmt.setInt(4, accepted );
+            prepStmt.setString(2, parent_url);
+            prepStmt.setInt(3, search_depth);
+            prepStmt.setLong(4, System.currentTimeMillis() );
+            prepStmt.setInt(5, visits );
             prepStmt.execute();
         } catch (SQLException e) {
             Logger.error("Error on domain insert", e);
@@ -102,15 +100,17 @@ public class DatabaseHelper {
             ResultSet result = stat.executeQuery("SELECT * FROM domains");
             
             long timestamp;
-            int search_depth, accepted;
-            String domain_url;
+            int search_depth, visits;
+            String domain_url,parent_url;
             
             while(result.next()) {
                 domain_url = result.getString("domain_url");
+                parent_url = result.getString("parent_url");
                 timestamp = result.getLong("date_visited");
                 search_depth = result.getInt("search_depth");
-                accepted = result.getInt("accepted");
-                domains.add(new Domain(domain_url, timestamp, search_depth, accepted));
+                visits = result.getInt("visits");
+                Domain newDomain = new Domain(domain_url, parent_url, timestamp, search_depth, visits); 
+                domains.add(newDomain);
             }
         } catch (SQLException e) {
         	Logger.error("Error fetching domains: ",e);

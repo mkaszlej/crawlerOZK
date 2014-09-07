@@ -30,10 +30,6 @@ public class FlowControlThread implements Runnable{
         this.domainUrl = domainUrl;
         this.progressFrame = new ProgressFrame(domainUrl);    
         this.addressFrame = new AddressFrame(dbConnection);
-        
-        
-
-        
     }
     
     public void run() {

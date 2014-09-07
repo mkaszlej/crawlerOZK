@@ -1,44 +1,58 @@
 package common;
 
+import util.Logger;
 import util.Url;
 
 public class Domain {
 
-	private long timestamp;
-	private int  search_depth;
-	private Url domain_url;
-	private int accepted;
-   
-	@Override
-	public boolean equals(Object o){
-	    if(o == null)            return false;
-	    if(!(o instanceof Domain)) return false;
+    private long timestamp;
+    private int visited;
+    private int search_depth;
+    
+    private Url parent_url;
+    private Url domain_url;
 
-	    Domain other = (Domain) o;
-	    if(!this.domain_url.equals(other.domain_url)) return false;
-	    return true;
-	  }
+    @Override
+    public boolean equals(Object o){
+        if(o == null)            return false;
+        if(!(o instanceof Domain)) return false;
+
+        Domain other = (Domain) o;
+        if(!this.domain_url.equals(other.domain_url)) return false;
+        return true;
+      }
 	
-    public Domain(String domain_url,  long timestamp, int search_depth, int accepted) {
+    public Domain(String domain_url, String parent_url, long timestamp, int search_depth, int visits) {
     	this.domain_url = new Url(domain_url);
+        this.parent_url = new Url(parent_url);
     	this.search_depth = search_depth;
     	this.timestamp = timestamp;
-    	this.accepted = accepted;
+    	this.visited = visits;
     }
 	
     public Domain(Link l)
     {
     	this.domain_url = l.getUrl();
+        this.parent_url = new Url(l.getDomainUrl());
     	this.search_depth = 1;
     	this.timestamp = l.getTimestamp();
-    	this.accepted = 0;
+    	this.visited = 0;
     }
 
-    public Domain(String domain_url, int search_depth) {
+    public Domain(String domain_url, String parent_url, int search_depth) {
     	this.domain_url = new Url(domain_url);
+        this.parent_url = new Url(parent_url);
     	this.search_depth = search_depth;
     	this.timestamp = System.currentTimeMillis();
-    	this.accepted = 1;
+    	this.visited = 0;
+    }
+    
+    public void update(Domain d)
+    {
+        if( this.parent_url == null ) this.parent_url = d.getParent_url();
+        if( d.getSearchDepth() > this.search_depth ) this.search_depth = d.getSearchDepth();
+        if( d.getVisits() > this.visited ) this.visited = d.getVisits();
+        this.timestamp = System.currentTimeMillis();
     }
     
     public Url getUrl()
@@ -50,6 +64,14 @@ public class Domain {
     {
     	this.domain_url = new Url(newUrl);
     	this.timestamp = System.currentTimeMillis();
+    }
+
+    public Url getParent_url() {
+        return parent_url;
+    }
+
+    public void setParent_url(Url parent_url) {
+        this.parent_url = parent_url;
     }
     
     public int getSearchDepth()
@@ -63,9 +85,9 @@ public class Domain {
     	this.timestamp = System.currentTimeMillis();
     }
     
-    public int getAccepted()
+    public int getVisits()
     {
-    	return this.accepted;
+    	return this.visited;
     }
     
     public long getTimestamp()
@@ -74,18 +96,22 @@ public class Domain {
     }
     
     
-    public boolean isAccepted()
+    public boolean isProcessed()
     {
-    	return this.accepted > 0;
+    	return this.visited > 0;
     }
 
+    public void addVisit() {
+        this.visited++;
+    }
+    
     @Override
     public String toString() {
-        return "["+search_depth+"] "+domain_url.toString();
+        return "D["+this.search_depth+"]V["+this.visited+"] "+domain_url.toString();
     }
     
     public String getMeta(){
-           return "PRZETWORZONE: "+Boolean.toString(accepted > 0)+"\n"+
-                  "DATA OSTATNIEJ ZMIANY: "+timestamp+"\n";           
+        return "PRZETWORZONE: "+Boolean.toString(visited > 0)+"\n"+
+               "DATA OSTATNIEJ ZMIANY: "+timestamp+"\n";           
     }
 }

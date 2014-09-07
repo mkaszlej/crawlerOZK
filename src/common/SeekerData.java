@@ -51,8 +51,11 @@ public class SeekerData {
 	
 	public static void addNewDomain(Domain domain)
 	{
-		if(!newDomains.contains(domain))
-			newDomains.add(domain);
+            if(!newDomains.contains(domain))
+                newDomains.add(domain);
+            else{
+                newDomains.get(newDomains.indexOf(domain)).update(domain);
+            }
 	}
 	
 	public synchronized static List<Domain> getNewDomains()

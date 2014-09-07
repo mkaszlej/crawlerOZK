@@ -19,22 +19,19 @@ public class SeekerApp implements Runnable {
     private DatabaseHelper dbConnection;
     private ArrayList<Domain> domains;
 
-    public SeekerApp(DatabaseHelper connection) {
-        domains = new ArrayList<Domain>();
-        dbConnection = connection;
-        getDomains();
-    }
-
     public SeekerApp(DatabaseHelper connection, Domain domain) {
         this.dbConnection = connection;
         domains = new ArrayList<Domain>();
         domains.add(domain);
+        domain.addVisit();
+        dbConnection.insertDomain(domain);
     }
 
     public SeekerApp(DatabaseHelper connection, String url, int depth) {
         this.dbConnection = connection;
-        Domain domain = new Domain(url, depth);
-        SeekerData.addNewDomain(domain);
+        Domain domain = new Domain(url, null, depth);
+        domain.addVisit();
+        dbConnection.insertDomain(domain);
         domains = new ArrayList<Domain>();
         domains.add(domain);
     }

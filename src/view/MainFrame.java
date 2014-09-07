@@ -13,8 +13,12 @@ import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JTree;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
 import parser.ParserThreadPool;
 import seeker.SeekerApp;
 import seeker.SeekerThreadPool;
@@ -34,26 +38,31 @@ public class MainFrame extends javax.swing.JFrame {
     /**
      * Creates new form MainFrame
      */
-    public MainFrame() {
+    public MainFrame(DatabaseHelper dbConnection) {
+        this.dbConnection = dbConnection;
+        domainList = dbConnection.getDomains();
+        model = new DomainModel(domainList);
+        
         initComponents();
         myInitComponents();
     }
     
     private void myInitComponents(){
         
-        jList1.addListSelectionListener(new ListSelectionListener() { 
+        generateTree();
+        
+        jTree1.addTreeSelectionListener(new TreeSelectionListener() { 
             @Override 
-            public void valueChanged(ListSelectionEvent e) 
+            public void valueChanged(TreeSelectionEvent e) 
             { 
-                if(!e.getValueIsAdjusting()) { 
-                    manual = false;
-                    Domain domain = (Domain)jList1.getSelectedValue();
-                    jTextField1.setText(domain.getUrl().toString());
-                    jTextField2.setText(domain.getSearchDepth()+"");
-                    jLabel4.setText(domain.getMeta());
-                    selectedDomain = domain;
-                } 
-            } 
+                manual = false;
+                DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
+                Domain domain = (Domain)selectedNode.getUserObject();
+                jTextField1.setText(domain.getUrl().toString());
+                jTextField2.setText(domain.getSearchDepth()+"");
+                jLabel4.setText(domain.getMeta());
+                selectedDomain = domain;
+            }
 
         });
         
@@ -75,6 +84,26 @@ public class MainFrame extends javax.swing.JFrame {
         });
     }
 
+    private void generateTree(){
+        
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Domeny");
+        DefaultMutableTreeNode przetworzone = new DefaultMutableTreeNode("Przetworzone");
+        DefaultMutableTreeNode nowe = new DefaultMutableTreeNode("Nowe");
+        root.add(przetworzone);
+        root.add(nowe);
+        
+        for (Domain domain : domainList) {
+            if(domain.isProcessed())
+                przetworzone.add(new DefaultMutableTreeNode(domain));
+            else
+                nowe.add(new DefaultMutableTreeNode(domain));
+        }
+        
+        jTree1 = new javax.swing.JTree(root);
+        jScrollPane1.setViewportView(jTree1);
+        
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -129,7 +158,7 @@ public class MainFrame extends javax.swing.JFrame {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTextField1)
+            .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 426, Short.MAX_VALUE)
             .addComponent(jTextField2)
             .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createSequentialGroup()
@@ -168,14 +197,14 @@ public class MainFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 426, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 329, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 402, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -239,23 +268,22 @@ public class MainFrame extends javax.swing.JFrame {
         }
         //</editor-fold>
 
+        final DatabaseHelper dbConnection = new DatabaseHelper();
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-            
-                dbConnection = new DatabaseHelper();
-                domainList = dbConnection.getDomains();
-                model = new DomainModel(domainList);
-                
-                instance = new MainFrame();
+               
+                instance = new MainFrame(dbConnection);
                 instance.setVisible(true);
-
                 
             }
         });
     }
 
+    private javax.swing.JTree jTree1;
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
