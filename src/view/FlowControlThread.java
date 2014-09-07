@@ -6,6 +6,7 @@
 
 package view;
 
+import common.Domain;
 import database.DatabaseHelper;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,12 +24,21 @@ public class FlowControlThread implements Runnable{
     
     private final AddressFrame addressFrame;
     
-    private String domainUrl;
-    
-    public FlowControlThread(DatabaseHelper dbConnection, String domainUrl) {
+    private Domain domain;
+
+    public FlowControlThread(DatabaseHelper dbConnection, Domain domain_to_process) {
         this.dbConnection = dbConnection;
-        this.domainUrl = domainUrl;
-        this.progressFrame = new ProgressFrame(domainUrl);    
+        this.domain = domain_to_process;
+        this.domain.addVisit();
+        this.progressFrame = new ProgressFrame(domain);    
+        this.addressFrame = new AddressFrame(dbConnection);
+    }
+    
+    public FlowControlThread(DatabaseHelper dbConnection, String domainUrl, int searchDepth) {
+        this.dbConnection = dbConnection;
+        this.domain = new Domain(domainUrl, null, searchDepth);
+        this.domain.addVisit();
+        this.progressFrame = new ProgressFrame(domain);    
         this.addressFrame = new AddressFrame(dbConnection);
     }
     
@@ -38,7 +48,7 @@ public class FlowControlThread implements Runnable{
         showProgressFrame();
         
         //Show address frame
-        showAddressFrame();
+        //showAddressFrame();
 
     }
     
@@ -56,15 +66,17 @@ public class FlowControlThread implements Runnable{
     
     private void showProgressFrame(){
         
-        /* Create and display the form */
+        /* Create and display the form 
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
                 progressFrame.setVisible(true);
             }
-        });
+        });*/
         
-        //Wait until seeking is over
+        progressFrame.start(dbConnection,domain);
+        
+        /*Wait until seeking is over
         while( 	SeekerThreadPool.counter.get() > 0 )
         {
             try {
@@ -73,7 +85,6 @@ public class FlowControlThread implements Runnable{
                 Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
             }
             
-            /* Create and display the form */
             java.awt.EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
@@ -83,6 +94,6 @@ public class FlowControlThread implements Runnable{
         }
         
         //Hide progress
-        progressFrame.setVisible(false); 
+        progressFrame.setVisible(false); */
     }
 }

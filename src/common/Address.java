@@ -17,7 +17,7 @@ public class Address {
 
 	    Address other = (Address) o;
 	    
-	    if(blobEquals(other,50)) return true;
+	    if(blobEquals(other,25)) return true;
 	    	
 	    if(this.city == null) return false;
 	    if(!this.city.equals(other.city)) return false;
@@ -30,10 +30,10 @@ public class Address {
 	
 	public boolean blobEquals(Address a, int margin)
 	{
-		if( this.blob.length() < 2*margin ) return false;
-		
-		String myBlob = this.blob.substring(margin, this.blob.length()-margin);
-		return a.getBlob().contains(myBlob);
+            if( this.blob.length() < 2*margin ) return false;
+
+            String myBlob = this.blob.substring(margin, this.blob.length()-margin);
+            return a.getBlob().contains(myBlob);
 	}
 	
 	// Address z bazy danych

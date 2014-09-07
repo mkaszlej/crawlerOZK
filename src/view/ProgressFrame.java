@@ -6,36 +6,69 @@
 
 package view;
 
+import common.Domain;
+import common.Link;
 import common.ParserData;
 import common.SeekerData;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JProgressBar;
+import database.DatabaseHelper;
+import java.awt.Cursor;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Random;
+import javax.swing.JFrame;
+import javax.swing.SwingWorker;
 import parser.ParserThreadPool;
+import seeker.PageProcessor;
 import seeker.SeekerThreadPool;
+import util.Logger;
 
 /**
  *
  * @author mkaszlej
  */
-public class ProgressFrame extends javax.swing.JFrame {
-
-    private String domainUrl;
+public class ProgressFrame extends javax.swing.JFrame implements PropertyChangeListener {
+    
+    private Domain domain;
+    private Task task;
+    
     /**
      * Creates new form ProgressFrame
      */
-    public ProgressFrame(String domainUrl) {
-        this.domainUrl = domainUrl;
+    public ProgressFrame(Domain domain_to_process) {
+        this.domain = domain_to_process;
         initComponents();
+        myInit();
+        
+    }
+    
+    private void myInit(){
         jProgressBar1.setMaximum(100);
         jProgressBar1.setMinimum(0);
-        jProgressBar1.setIndeterminate(true);
     }
 
-    public void update(){
-        jTextArea1.setText("Przetwarzanie domeny:\n"+domainUrl+"\n\nWątków (pracujących i oczekujących):\n"+SeekerThreadPool.counter.get() +" - poszukujących\n"+ParserThreadPool.counter.get()+" - parsujących\n\n"+ParserData.getBlobResultSize()+" - znalezionych adresów\n\n"+SeekerData.count());
+    public void updateStatus(){
+        jTextArea1.setText("Przetwarzanie domeny:\n"+domain.getUrl()+"\n\nWątków (pracujących i oczekujących):\n"+SeekerThreadPool.counter.get() +" - poszukujących\n"+ParserThreadPool.counter.get()+" - parsujących\n\n"+ParserData.getBlobResultSize()+" - znalezionych adresów\n\n"+SeekerData.count());
 		
     }
+    
+    public void start(DatabaseHelper dbConnection, Domain domain){
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        // Instances of javax.swing.SwingWorker are not reusuable, so
+        // we create new instances as needed.
+        task = new Task(dbConnection);
+        task.addPropertyChangeListener(this);
+        task.execute();
+        
+        final JFrame instance = this;
+        
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                instance.setVisible(true);
+            }
+        });
+
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -48,6 +81,8 @@ public class ProgressFrame extends javax.swing.JFrame {
         jProgressBar1 = new javax.swing.JProgressBar();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTextArea2 = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -56,15 +91,20 @@ public class ProgressFrame extends javax.swing.JFrame {
         jTextArea1.setRows(5);
         jScrollPane1.setViewportView(jTextArea1);
 
+        jTextArea2.setColumns(20);
+        jTextArea2.setRows(5);
+        jScrollPane2.setViewportView(jTextArea2);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jProgressBar1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane2)
+                    .addComponent(jProgressBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -73,7 +113,9 @@ public class ProgressFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -83,6 +125,102 @@ public class ProgressFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextArea jTextArea2;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if ("progress".equals(evt.getPropertyName())) {
+          int progress = (Integer) evt.getNewValue();
+          jProgressBar1.setValue(progress);
+          updateStatus();
+          jTextArea2.append( String.format("Completed %d%% of task.\n", task.getProgress() ));
+        }
+    }
+    
+    // --------- DEFINE TASK ------ //
+    
+    
+  class Task extends SwingWorker<Void, Void> {
+    
+      
+    private DatabaseHelper dbConnection;
+
+    public Task(DatabaseHelper db_connection) {
+        this.dbConnection = db_connection;
+    }
+
+    /*
+     * Main task. Executed in background thread.
+     */
+    @Override
+    public Void doInBackground() {
+ 
+        setProgress(0);
+        
+        Link initialLink = new Link(domain);
+        initSeeker();
+
+        setProgress(5);
+        
+        SeekerData.loadLinkList(dbConnection.getLinks(domain));
+        ParserData.loadAddressList(dbConnection.getAddresses(domain));
+
+        setProgress(15);
+        
+        SeekerThreadPool.setMaxDepth(domain.getSearchDepth());
+        
+        SeekerThreadPool.execute(new PageProcessor(initialLink));
+        
+        while( 	SeekerThreadPool.counter.get() > 0 ){
+            try{Thread.sleep(1000);}catch(Exception e){}
+        }
+
+        setProgress(60);
+        
+        while( 	ParserThreadPool.counter.get() > 0 ){
+            try{Thread.sleep(1000);}catch(Exception e){}
+        }
+        
+        setProgress(80);
+        
+        updateDatabase();
+
+        setProgress(100);
+                
+        Logger.info( "Zakonczono przetwarzanie domeny" );
+        
+        return null;
+    }
+
+    private void initSeeker()
+    {
+        SeekerData.resetFinished();
+        SeekerData.resetDomains();
+        ParserData.resetProcessed();
+        SeekerThreadPool.reset();
+        ParserThreadPool.reset();
+    }
+    
+    private void updateDatabase(){
+        Logger.info("Updating database state...");
+        dbConnection.insertLinksFromSet(SeekerData.getFinishedLinks());
+        dbConnection.insertDomainsFromSet(SeekerData.getNewDomains());
+        Logger.debug(SeekerData.count());
+        Logger.info("Database state updated.");
+        
+    }
+    
+    /*
+     * Executed in event dispatching thread
+     */
+    @Override
+    public void done() {
+        setCursor(null); // turn off the wait cursor
+        jTextArea1.append("Done!\n");
+    }
+  }
+    
 }

@@ -262,28 +262,21 @@ public class MainFrame extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void startFlowControlThread(){
-        new Thread(new FlowControlThread(dbConnection, jTextField1.getText())).start();
-    }
-    
+   
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         
         SeekerApp seeker;
         if(manual) //Wprowadzono ręcznie
         {
             instance.setVisible(false);
-            SeekerThreadPool.execute( new SeekerApp(dbConnection, jTextField1.getText(), Integer.parseInt(jTextField2.getText()) ) );
+            new Thread(new FlowControlThread(dbConnection, jTextField1.getText(), Integer.parseInt(jTextField2.getText() ))).start();
         }
         else if(selectedDomain != null){
             instance.setVisible(false);
-            //UPDATE NEW SEARCH DEPTH
             selectedDomain.setSearchDepth(Integer.parseInt(jTextField2.getText()));
-            SeekerThreadPool.execute( new SeekerApp(dbConnection, selectedDomain) );
+            new Thread(new FlowControlThread(dbConnection, selectedDomain)).start();
         }
         
-        //Start processing
-        startFlowControlThread();
         
     }//GEN-LAST:event_jButton1ActionPerformed
 
