@@ -107,7 +107,7 @@ public class Domain {
     
     @Override
     public String toString() {
-        return "D["+this.search_depth+"]V["+this.visited+"] "+domain_url.toString();
+        return domain_url.toString();
     }
     
     public String getMeta(){

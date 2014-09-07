@@ -11,6 +11,7 @@ import database.DatabaseHelper;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTree;
@@ -47,6 +48,11 @@ public class MainFrame extends javax.swing.JFrame {
         myInitComponents();
     }
     
+    public void resetFields()
+    {
+        
+    }
+    
     private void myInitComponents(){
         
         generateTree();
@@ -57,6 +63,12 @@ public class MainFrame extends javax.swing.JFrame {
             { 
                 manual = false;
                 DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
+                if(selectedNode.getUserObject() instanceof String)
+                {
+                    resetFields();
+                    selectedDomain = null;
+                    return;
+                }
                 Domain domain = (Domain)selectedNode.getUserObject();
                 jTextField1.setText(domain.getUrl().toString());
                 jTextField2.setText(domain.getSearchDepth()+"");
@@ -86,20 +98,58 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void generateTree(){
         
+        HashMap<String, DefaultMutableTreeNode> hierarchyProcessed = new HashMap<String, DefaultMutableTreeNode>();
+        HashMap<String, DefaultMutableTreeNode> hierarchyNotProcessed = new HashMap<String, DefaultMutableTreeNode>();
+                
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Domeny");
         DefaultMutableTreeNode przetworzone = new DefaultMutableTreeNode("Przetworzone");
         DefaultMutableTreeNode nowe = new DefaultMutableTreeNode("Nowe");
+        DefaultMutableTreeNode recznieNowe = new DefaultMutableTreeNode("Wprowadzone ręcznie");
+        DefaultMutableTreeNode reczniePrzetworzone = new DefaultMutableTreeNode("Wprowadzone ręcznie");
         root.add(przetworzone);
         root.add(nowe);
+        przetworzone.add(reczniePrzetworzone);
+        nowe.add(recznieNowe);
+               
         
         for (Domain domain : domainList) {
-            if(domain.isProcessed())
-                przetworzone.add(new DefaultMutableTreeNode(domain));
-            else
-                nowe.add(new DefaultMutableTreeNode(domain));
+            String parent = domain.getParent_url().toString();
+            
+            if(domain.isProcessed()){
+                if(parent == null){
+                    //TOP level domain
+                    DefaultMutableTreeNode domainNode = new DefaultMutableTreeNode(domain);
+                    reczniePrzetworzone.add(domainNode);
+                }
+                else{
+                    if(hierarchyProcessed.get(parent) == null) {
+                        DefaultMutableTreeNode parentNode = new DefaultMutableTreeNode("Z domeny - "+parent);
+                        przetworzone.add(parentNode);
+                        hierarchyProcessed.put(parent, parentNode);
+                    }
+                    hierarchyProcessed.get(parent).add(new DefaultMutableTreeNode(domain));  
+                }
+            }
+            else{
+                if(parent == null){
+                    //TOP level domain
+                    DefaultMutableTreeNode domainNode = new DefaultMutableTreeNode(domain);
+                    recznieNowe.add(domainNode);
+                }
+                else{
+                    if(hierarchyNotProcessed.get(parent) == null) {
+                        DefaultMutableTreeNode parentNode = new DefaultMutableTreeNode("Z domeny - "+parent);
+                        nowe.add(parentNode);
+                        hierarchyNotProcessed.put(parent, parentNode);
+                    }
+                    hierarchyNotProcessed.get(parent).add(new DefaultMutableTreeNode(domain));   
+                }                
+            }
+
         }
         
         jTree1 = new javax.swing.JTree(root);
+        jTree1.setRootVisible(false);
         jScrollPane1.setViewportView(jTree1);
         
     }
