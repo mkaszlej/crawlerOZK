@@ -8,6 +8,7 @@ import parser.BlobResult;
 import parser.ParserThreadPool;
 import util.Logger;
 import util.Url;
+import view.ProgressFrame;
 
 public class ParserData {
 

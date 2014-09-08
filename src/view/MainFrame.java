@@ -291,6 +291,9 @@ public class MainFrame extends javax.swing.JFrame {
             }
             domain.addVisit();
             
+            //Update domain
+            dbConnection.insertDomain(domain);
+            
             ProgressFrame progressFrame = new ProgressFrame(this, dbConnection, domain); 
             progressFrame.start(dbConnection,domain);
         }
@@ -298,7 +301,10 @@ public class MainFrame extends javax.swing.JFrame {
             domain = selectedDomain;
             domain.setSearchDepth(Integer.parseInt(jTextField2.getText()));
             domain.addVisit();
-            
+
+            //Update domain
+            dbConnection.insertDomain(domain);
+
             ProgressFrame progressFrame = new ProgressFrame(this, dbConnection, domain); 
             progressFrame.start(dbConnection,domain);
         }

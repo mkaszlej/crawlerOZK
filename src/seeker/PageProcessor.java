@@ -1,26 +1,25 @@
 package seeker;
 
+import common.Link;
+import common.SeekerData;
 import java.util.HashSet;
 import java.util.Iterator;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
 import parser.ParserThreadPool;
-
 import util.Logger;
-
-import common.Link;
-import common.SeekerData;
+import view.ProgressFrame;
 
 public class PageProcessor implements Runnable {
 
-	private Link link;
-
-	public PageProcessor(Link link) {
+	private final Link link;
+        private final ProgressFrame parent;
+        
+	public PageProcessor(ProgressFrame parentFrame, Link link) {
 		this.link=link;
+                this.parent = parentFrame;
 	}
 	
 	public Document downloadPage()
@@ -29,6 +28,7 @@ public class PageProcessor implements Runnable {
 		
 		if(link.getUrl().isImage()){
 			Logger.warn(link.getUrl() + " - Prawdopodobnie obrazek, zgloszono jako nie dzialajacy!");
+                        if(parent != null) parent.logError("\n[Prawdopodobnie obrazek!]\nDodano adres "+link.getUrl()+" do listy nie działających linków");
 			SeekerThreadPool.addBrokenUrl(link.getUrl());
 			return page;
 		}
@@ -48,16 +48,19 @@ public class PageProcessor implements Runnable {
 		{
 			Logger.warn( link.getUrl() +" - Skipping: unsupported MIME");
 			SeekerThreadPool.addBrokenUrl(link.getUrl());
+                        if(parent != null) parent.logError("\n[Nie wspierany typ MIME]\nDodano adres "+link.getUrl()+" do listy nie działających linków");
 		}
 		catch(org.jsoup.HttpStatusException e)
 		{
-			Logger.warn( link.getUrl() +" - HTTP Exception -> " + e.getCause());
-			SeekerThreadPool.addBrokenUrl(link.getUrl());
+                    Logger.warn( link.getUrl() +" - HTTP Exception -> " + e.getCause());
+                    SeekerThreadPool.addBrokenUrl(link.getUrl());
+                    if(parent != null) parent.logError("\n[Błąd HTTP: "+e.getCause()+"]\nDodano adres "+link.getUrl()+" do listy nie działających linków");
 		}
 		catch(Exception e)
 		{
 			SeekerThreadPool.addBrokenUrl(link.getUrl());
 			Logger.error(link.getUrl() + " - Error while loading link. Added to brokenLinkList. Error was: ", e);
+                        if(parent != null) parent.logError("\n[Nieznany błąd]\nDodano adres "+link.getUrl()+" do listy nie działających linków");
 		}
 		return page;
 	}
@@ -74,11 +77,12 @@ public class PageProcessor implements Runnable {
 		
 		link.setLinkCount(newLinks.size());
 		
-		ParserThreadPool.execute(link, page);
+                //START PARSING
+		ParserThreadPool.execute(parent,link, page);
 		
 		SeekerData.addFinishedLink(link);
 				
-		SeekerThreadPool.execute(newLinks);
+		SeekerThreadPool.execute(parent, newLinks);
 		
 		SeekerThreadPool.counter.decrementAndGet();
 	}

@@ -3,6 +3,7 @@ package parser;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import util.Url;
+import view.ProgressFrame;
 
 public class BlobStepParser extends BlobParser {
 
@@ -13,7 +14,7 @@ public class BlobStepParser extends BlobParser {
 	private String apartamentNo;
 		
 	public BlobStepParser(Url domainUrl, Url linkUrl, String blob) {
-		super(domainUrl, linkUrl, blob);
+		super( domainUrl, linkUrl, blob);
 	}
 	
 	public void parse() {

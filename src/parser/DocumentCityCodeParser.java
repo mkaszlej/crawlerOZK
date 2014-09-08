@@ -1,23 +1,20 @@
 package parser;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-
-import util.Logger;
-
 import common.Address;
 import common.Link;
 import common.ParserData;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import util.Logger;
+import view.ProgressFrame;
 
 public class DocumentCityCodeParser extends DocumentParser {
 	
-	public DocumentCityCodeParser(Link link, Document htmlData) {
-	    super(link, htmlData);
+	public DocumentCityCodeParser( Link link, Document htmlData) {
+	    super( link, htmlData);
 	    this.addresses.clear();
-	    //this.data = Jsoup.parse(this.data).text();
 	}
 	
     public void parse(){
@@ -31,7 +28,7 @@ public class DocumentCityCodeParser extends DocumentParser {
         }
         
         for (Address address : addresses) {
-            ParserData.addProcessedAddress(address);
+            ParserData.addProcessedAddress( address);
         }
 
         Logger.parser("["+addresses.size()+"] PARSED URI: "+htmlData.baseUri());

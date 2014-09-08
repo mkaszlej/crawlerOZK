@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.jsoup.nodes.Document;
 
 import common.Link;
+import view.ProgressFrame;
 
 public class ParserThreadPool {
 
@@ -22,9 +23,9 @@ public class ParserThreadPool {
 		return instance;
 	}
 	
-	public static void execute(Link link, Document document)
+	public static void execute(ProgressFrame parentFrame, Link link, Document document)
 	{
-		execute(new DocumentParserThread(link, document));
+		execute(new DocumentParserThread(parentFrame, link, document));
 	}
 	
 	public static void execute(Runnable thread)

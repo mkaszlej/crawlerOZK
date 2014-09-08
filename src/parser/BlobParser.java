@@ -4,6 +4,7 @@ package parser;
 import common.Address;
 import common.Link;
 import util.Url;
+import view.ProgressFrame;
 
 
 public abstract class BlobParser {
@@ -32,7 +33,7 @@ public abstract class BlobParser {
     protected String street;
     protected String buildingNo;
     protected String apartamentNo;
-
+    
     BlobParser(Url domainUrl, Url linkUrl, String blob){
         this.parserResults = new BlobResult( domainUrl, linkUrl, blob );
         this.domainUrl = domainUrl;

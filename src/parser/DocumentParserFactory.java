@@ -3,6 +3,7 @@ package parser;
 import org.jsoup.nodes.Document;
 
 import common.Link;
+import view.ProgressFrame;
 
 public class DocumentParserFactory {
 	

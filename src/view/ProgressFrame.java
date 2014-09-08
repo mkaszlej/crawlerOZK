@@ -11,6 +11,7 @@ import common.Link;
 import common.ParserData;
 import common.SeekerData;
 import database.DatabaseHelper;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -36,6 +37,7 @@ public class ProgressFrame extends javax.swing.JFrame implements PropertyChangeL
     private final MainFrame parent;
     private DatabaseHelper dbConnection;
     private AddressFrame addressFrame;
+    private final ProgressFrame instance = this;
     
     /**
      * Creates new form ProgressFrame
@@ -93,11 +95,20 @@ public class ProgressFrame extends javax.swing.JFrame implements PropertyChangeL
 
     }
     
-    public void updateProgress(final String progress)
+    public synchronized void updateProgress(final String progress)
     {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 jTextArea2.append(progress+"\n");
+            }
+        });
+    }
+
+    public synchronized void logError(final String error)
+    {
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                jTextArea2.append(error+"\n");
             }
         });
     }
@@ -213,7 +224,7 @@ public class ProgressFrame extends javax.swing.JFrame implements PropertyChangeL
                 
         SeekerThreadPool.setMaxDepth(domain.getSearchDepth());
         
-        SeekerThreadPool.execute(new PageProcessor(initialLink));
+        SeekerThreadPool.execute(new PageProcessor(instance, initialLink));
 
         publish("Rozpoczęto przeszukiwanie.\n------------\n");
         

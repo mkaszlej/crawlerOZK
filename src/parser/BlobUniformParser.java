@@ -10,6 +10,7 @@ import org.jsoup.Jsoup;
 import util.Logger;
 import util.Url;
 import view.AddressFrame;
+import view.ProgressFrame;
 
 public class BlobUniformParser extends BlobParser {
 	
@@ -19,8 +20,8 @@ public class BlobUniformParser extends BlobParser {
         String kod = regexCityCode;
         String ul = "ul\\.\\s?";
         
-	public BlobUniformParser(Url domainUrl, Url linkUrl, String blob) {
-		super(domainUrl, linkUrl, blob);
+	public BlobUniformParser( Url domainUrl, Url linkUrl, String blob) {
+		super( domainUrl, linkUrl, blob);
 	}
 	
 	public void parse() {

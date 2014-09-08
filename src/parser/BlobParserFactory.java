@@ -3,6 +3,7 @@ package parser;
 import common.Address;
 import common.Link;
 import util.Url;
+import view.ProgressFrame;
 
 public class BlobParserFactory {
 	
@@ -16,7 +17,7 @@ public class BlobParserFactory {
             //case StepParser:
             //    return new BlobStepParser(a);
             case UniformParser:
-            	return new BlobUniformParser(domainUrl, linkUrl, blob);
+            	return new BlobUniformParser( domainUrl, linkUrl, blob);
         }
         throw new IllegalArgumentException("Parser type " + parserType + " is not recognized.");
     }

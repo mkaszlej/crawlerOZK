@@ -10,11 +10,12 @@ import org.jsoup.nodes.Document;
 import common.Address;
 import common.Link;
 import common.ParserData;
+import view.ProgressFrame;
 
 public class DocumentStreetParser extends DocumentParser {
 	
-    public DocumentStreetParser(Link link, Document htmlData) {
-        super(link, htmlData);
+    public DocumentStreetParser( Link link, Document htmlData) {
+        super( link, htmlData);
         this.addresses.clear();
     }
 
@@ -30,7 +31,7 @@ public class DocumentStreetParser extends DocumentParser {
         }
         
         for (Address address : addresses) {
-            ParserData.addProcessedAddress(address);
+            ParserData.addProcessedAddress( address);
         }
 
     }

@@ -1,5 +1,8 @@
 package seeker;
 
+import common.Domain;
+import common.Link;
+import common.SeekerData;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -8,13 +11,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-
 import util.Logger;
 import util.Url;
-
-import common.Domain;
-import common.Link;
-import common.SeekerData;
+import view.ProgressFrame;
 
 public class SeekerThreadPool {
 
@@ -42,12 +41,12 @@ public class SeekerThreadPool {
 		return instance;
 	}
 	
-	public static void execute(HashSet<Link> linkSet)
+	public static void execute(ProgressFrame parentFrame, HashSet<Link> linkSet)
 	{
 		for (Link link : linkSet) {
 			if(checkUrl(link))
 			{
-				execute(new PageProcessor(link));
+				execute(new PageProcessor(parentFrame, link));
 			}
 		}
 	}
