@@ -150,13 +150,13 @@ public class DatabaseHelper {
             prepStmt.setString(1, cityCode);
             prepStmt.setString(2, city);
             prepStmt.setString(3, street);
-            prepStmt.setString(4, domain);
-            prepStmt.setString(5, link);
+            prepStmt.setString(4, buildingNo );
+            prepStmt.setString(5, apartamentNo );
             prepStmt.setString(6, blob);
-            prepStmt.setLong(7, timestamp );
-            prepStmt.setString(8, buildingNo );
-            prepStmt.setString(9, apartamentNo );
-            prepStmt.setInt(10, count );
+            prepStmt.setInt(7, count );
+            prepStmt.setLong(8, timestamp );
+            prepStmt.setString(9, domain);
+            prepStmt.setString(10, link);
             prepStmt.execute();
         } catch (SQLException e) {
             Logger.error("Error on address insert", e);
