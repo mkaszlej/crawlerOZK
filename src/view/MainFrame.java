@@ -41,6 +41,9 @@ public class MainFrame extends javax.swing.JFrame {
     
     public void closingTime(){
         //RESTARTING
+        //refresh domain list
+        domainList = dbConnection.getDomains();
+        
         resetFields();
         generateTree();
     }
@@ -324,7 +327,16 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextField1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+        final ExporterFrame export = new ExporterFrame(instance, dbConnection, selectedDomain);
+        
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                export.setVisible(true);
+                instance.setVisible(false);
+            }
+        });
+        
     }//GEN-LAST:event_jButton2ActionPerformed
    
     /**
