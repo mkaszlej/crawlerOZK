@@ -48,7 +48,8 @@ public class MainFrame extends javax.swing.JFrame {
     
     public void resetFields()
     {
-        
+        jTextField1.setText("");
+        jTextField2.setText("");
     }
     
     private void myInitComponents(){
@@ -258,18 +259,27 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
-        SeekerApp seeker;
+        Domain domain;
+        
         if(manual) //Wprowadzono ręcznie
         {
-            instance.setVisible(false);
-            new Thread(new FlowControlThread(dbConnection, jTextField1.getText(), Integer.parseInt(jTextField2.getText() ))).start();
+            domain = new Domain(jTextField1.getText(), null, Integer.parseInt(jTextField2.getText() ) );
+            domain.addVisit();
+            
+            ProgressFrame progressFrame = new ProgressFrame(dbConnection, domain); 
+            progressFrame.start(dbConnection,domain);
         }
         else if(selectedDomain != null){
-            instance.setVisible(false);
-            selectedDomain.setSearchDepth(Integer.parseInt(jTextField2.getText()));
-            new Thread(new FlowControlThread(dbConnection, selectedDomain)).start();
+            domain = selectedDomain;
+            domain.setSearchDepth(Integer.parseInt(jTextField2.getText()));
+            domain.addVisit();
+            
+            ProgressFrame progressFrame = new ProgressFrame(dbConnection, domain); 
+            progressFrame.start(dbConnection,domain);
         }
+        
 
+        
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed

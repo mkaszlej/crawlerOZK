@@ -41,7 +41,7 @@ public class ProgressFrame extends javax.swing.JFrame implements PropertyChangeL
     public ProgressFrame(DatabaseHelper db_connection, Domain domain_to_process) {
         this.domain = domain_to_process;
         this.dbConnection = db_connection;
-        this.addressFrame = new AddressFrame(dbConnection);
+        this.addressFrame = new AddressFrame(dbConnection, this);
         initComponents();
         myInit();
     }

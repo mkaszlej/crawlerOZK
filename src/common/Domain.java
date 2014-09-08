@@ -23,7 +23,7 @@ public class Domain {
       }
 	
     public Domain(String domain_url, String parent_url, long timestamp, int search_depth, int visits) {
-    	this.domain_url = new Url(domain_url);
+    	this.domain_url = checkDomainUrl(domain_url);
         this.parent_url = new Url(parent_url);
     	this.search_depth = search_depth;
     	this.timestamp = timestamp;
@@ -45,6 +45,15 @@ public class Domain {
     	this.search_depth = search_depth;
     	this.timestamp = System.currentTimeMillis();
     	this.visited = 0;
+    }
+    
+    private Url checkDomainUrl(String url)
+    {
+        if(!url.endsWith("/")) {
+            Logger.warn("Forced domain url to finish with /. Domain: "+url);
+            return new Url(url+"/");
+        }
+        return new Url(url);
     }
     
     public void update(Domain d)
