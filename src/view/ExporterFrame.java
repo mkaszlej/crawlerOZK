@@ -237,10 +237,8 @@ public class ExporterFrame extends javax.swing.JFrame {
             
             int i=0, max = addresses.size();
             for (Address address : addresses) {
-                
-                publish(address.toString());
-                try {Thread.sleep(1000);} catch (InterruptedException ex) {}
-                
+                String out = address.getCity()+"|"+"BD"+"|"+address.getIndex()+"|"+address.getCategory()+"|"+address.getName()+"|"+address.getStreet()+"|"+address.getBuildingNo()+"|"+address.getApartamentNo()+"|"+address.getCityCode()+"|"+address.getCity()+"|"+address.getPhone()+"|"+address.getEmail()+"|"+"BD"+"|"+"BD"+"|"+address.getFlag();
+                publish(out);                
                 setProgress(Math.abs(i/max*100));
             }
             

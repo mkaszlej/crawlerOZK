@@ -4,9 +4,9 @@ import util.Url;
 
 public class Address {
 
-        private String name=null, phone=null, email=null, cityCode=null, city=null, street=null, domain=null, blob=null, buildingNo=null, apartamentNo=null, flag=null;
+        private String name=null, phone=null, email=null, index=null, cityCode=null, city=null, street=null, domain=null, blob=null, buildingNo=null, apartamentNo=null, flag=null, category=null;
 	private long timestamp;
-	private int addressId,  count, index;
+	private int addressId,  count;
 	private Url link;
 	
 
@@ -38,12 +38,13 @@ public class Address {
 	}
 	
 	// Address z bazy danych
-        public Address( int addressId, String name, String phone, String email, int index, String cityCode, String city, String street, String domain, String link, String blob, long timestamp, String buildingNo, String apartamentNo, int count, String flag) {
+        public Address( int addressId, String name, String phone, String email, String index, String category, String cityCode, String city, String street, String domain, String link, String blob, long timestamp, String buildingNo, String apartamentNo, int count, String flag) {
             this.addressId = addressId;
             this.name = name;
             this.phone = phone;
             this.email = email;
             this.index = index;
+            this.category = category;
             this.cityCode = cityCode;
             this.city = city;
             this.street = street;
@@ -97,8 +98,12 @@ public class Address {
         this.email = email;
     }
 
-    public void setIndex(int index) {
+    public void setIndex(String index) {
         this.index = index;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public void setFlag(String flag) {
@@ -113,8 +118,12 @@ public class Address {
         return flag;
     }
 
-    public int getIndex() {
+    public String getIndex() {
         return index;
+    }
+
+    public String getCategory() {
+        return category;
     }
 
     public String getPhone() {

@@ -40,12 +40,20 @@ public class MainFrame extends javax.swing.JFrame {
     }
     
     public void closingTime(){
+        
         //RESTARTING
         //refresh domain list
         domainList = dbConnection.getDomains();
-        
         resetFields();
         generateTree();
+        
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                setVisible(true);
+            }
+        });
+
     }
     
     public void resetFields()
