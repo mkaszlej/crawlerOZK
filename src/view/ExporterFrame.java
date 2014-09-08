@@ -254,7 +254,7 @@ public class ExporterFrame extends javax.swing.JFrame {
        protected void process(List<String> chunks) {
            super.process(chunks); //To change body of generated methods, choose Tools | Templates.
            for (String string : chunks) {
-               jTextArea1.append( string );
+               jTextArea1.append( string+"\n" );
            }
        }
 

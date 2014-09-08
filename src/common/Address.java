@@ -4,9 +4,9 @@ import util.Url;
 
 public class Address {
 
-        private String name=null, cityCode=null, city=null, street=null, domain=null, blob=null, buildingNo=null, apartamentNo=null;
+        private String name=null, phone=null, email=null, cityCode=null, city=null, street=null, domain=null, blob=null, buildingNo=null, apartamentNo=null, flag=null;
 	private long timestamp;
-	private int addressId,  count;
+	private int addressId,  count, index;
 	private Url link;
 	
 
@@ -38,19 +38,24 @@ public class Address {
 	}
 	
 	// Address z bazy danych
-    public Address( int addressId, String cityCode, String city, String street, String domain, String link, String blob, long timestamp, String buildingNo, String apartamentNo, int count) {
-    	this.addressId = addressId;
-    	this.cityCode = cityCode;
-    	this.city = city;
-    	this.street = street;
-    	this.domain = domain;
-    	this.link = new Url(link);
-    	this.blob = blob;
-    	this.timestamp = timestamp;
-    	this.buildingNo = buildingNo;
-    	this.apartamentNo = apartamentNo;
-    	this.count = count;
-    }
+        public Address( int addressId, String name, String phone, String email, int index, String cityCode, String city, String street, String domain, String link, String blob, long timestamp, String buildingNo, String apartamentNo, int count, String flag) {
+            this.addressId = addressId;
+            this.name = name;
+            this.phone = phone;
+            this.email = email;
+            this.index = index;
+            this.cityCode = cityCode;
+            this.city = city;
+            this.street = street;
+            this.domain = domain;
+            this.link = new Url(link);
+            this.blob = blob;
+            this.timestamp = timestamp;
+            this.buildingNo = buildingNo;
+            this.apartamentNo = apartamentNo;
+            this.count = count;
+            this.flag = flag;
+        }
     
     //Address na podstawie linku i blob
     public Address( Link link, String blob )
@@ -79,7 +84,43 @@ public class Address {
         this.count = 1;
         this.timestamp = System.currentTimeMillis();             
     }
-	   
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    public void setFlag(String flag) {
+        this.flag = flag;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getFlag() {
+        return flag;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+    
     public String getCityCode() {
 		return cityCode;
 	}

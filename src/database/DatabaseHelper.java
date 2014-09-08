@@ -20,7 +20,7 @@ public class DatabaseHelper {
  
     public static final String CREATE_DOMAINS_TABLE = "CREATE TABLE IF NOT EXISTS domains (domain_id INTEGER PRIMARY KEY AUTOINCREMENT, domain_url varchar(2000) NOT NULL UNIQUE, parent_url varchar(2000), search_depth INTEGER, date_visited INTEGER, visits INTEGER )";
     public static final String CREATE_LINKS_TABLE = "CREATE TABLE IF NOT EXISTS links (link_id INTEGER PRIMARY KEY AUTOINCREMENT, domain_url varchar(2000), link_url varchar(2000) NOT NULL UNIQUE, link_depth INTEGER, date_visited INTEGER, visits INTEGER, hit_count INTEGER, link_count INTEGER , flags VARCHAR(50)) ";
-    public static final String CREATE_ADDRESS_TABLE = "CREATE TABLE IF NOT EXISTS address (address_id INTEGER PRIMARY KEY AUTOINCREMENT, cityCode varchar(6), city varchar(2000), street varchar(2000), buildingNo varchar(20), apartamentNo varchar(20), blob varchar(5000), count INTEGER, timestamp INTEGER, domain_url varchar(2000), link_url varchar(2000) ) ";
+    public static final String CREATE_ADDRESS_TABLE = "CREATE TABLE IF NOT EXISTS address (address_id INTEGER PRIMARY KEY AUTOINCREMENT, name varchar(2000), phone varchar(200), email varchar(200), index_ozk INTEGER, cityCode varchar(6), city varchar(2000), street varchar(2000), buildingNo varchar(20), apartamentNo varchar(20), blob varchar(2000), count INTEGER, timestamp INTEGER, domain_url varchar(2000), link_url varchar(2000) , flag varchar(200) ) ";
     
     private Connection conn;
     private Statement stat;
@@ -130,33 +130,38 @@ public class DatabaseHelper {
     	}
     	
     	for (Address address : addressSet) {
-			if(!insertAddress(address))
-			{
-				Logger.warn("Skipping address: "+address.toString());
-				notAdded.add(address);	
-			}
-		}
+            if(!insertAddress(address))
+            {
+                Logger.warn("Skipping address: "+address.toString());
+                notAdded.add(address);	
+            }
+        }
     	
     	return notAdded;
     }
     
 
     public boolean insertAddress(Address a) {
-        return insertAddress(a.getCityCode(), a.getCity(), a.getStreet(), a.getDomain(), a.getLink().toString() , a.getBlob(), a.getTimestamp(), a.getBuildingNo(), a.getApartamentNo(), a.getCount());
+        return insertAddress(a.getName(), a.getPhone(), a.getEmail(), a.getIndex(), a.getCityCode(), a.getCity(), a.getStreet(), a.getDomain(), a.getLink().toString() , a.getBlob(), a.getTimestamp(), a.getBuildingNo(), a.getApartamentNo(), a.getCount(), a.getFlag() );
     }    
-    public boolean insertAddress( String cityCode, String city, String street, String domain, String link, String blob, long timestamp, String buildingNo, String apartamentNo, int count) {
+    public boolean insertAddress( String name, String phone, String email, int index, String cityCode, String city, String street, String domain, String link, String blob, long timestamp, String buildingNo, String apartamentNo, int count, String flag) {
         try {
-            PreparedStatement prepStmt = conn.prepareStatement("insert or replace into address values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
-            prepStmt.setString(1, cityCode);
-            prepStmt.setString(2, city);
-            prepStmt.setString(3, street);
-            prepStmt.setString(4, buildingNo );
-            prepStmt.setString(5, apartamentNo );
-            prepStmt.setString(6, blob);
-            prepStmt.setInt(7, count );
-            prepStmt.setLong(8, timestamp );
-            prepStmt.setString(9, domain);
-            prepStmt.setString(10, link);
+            PreparedStatement prepStmt = conn.prepareStatement("insert or replace into address values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+            prepStmt.setString(1, name);
+            prepStmt.setString(2, phone);
+            prepStmt.setString(3, email);
+            prepStmt.setInt(4, index );
+            prepStmt.setString(5, cityCode);
+            prepStmt.setString(6, city);
+            prepStmt.setString(7, street);
+            prepStmt.setString(8, buildingNo );
+            prepStmt.setString(9, apartamentNo );
+            prepStmt.setString(10, blob);
+            prepStmt.setInt(11, count );
+            prepStmt.setLong(12, timestamp );
+            prepStmt.setString(13, domain);
+            prepStmt.setString(14, link);
+            prepStmt.setString(15, flag );
             prepStmt.execute();
         } catch (SQLException e) {
             Logger.error("Error on address insert", e);
@@ -176,23 +181,28 @@ public class DatabaseHelper {
         try {
             ResultSet result = stat.executeQuery("SELECT * FROM address WHERE domain_url LIKE '"+domain_url+"'");
             
-        	String cityCode, city, street, domain, blob, link, buildingNo, apartamentNo;
+        	String name, phone, email, cityCode, city, street, domain, blob, link, buildingNo, apartamentNo, flag;
         	long timestamp;
-        	int addressId, count;
+        	int addressId, count, index;
             
             while(result.next()) {
-                addressId = result.getInt("addressId");
+                addressId = result.getInt("address_id");
+            	name = result.getString( "name" );
+            	phone = result.getString( "phone" );
+            	email = result.getString( "email" );
+            	index = result.getInt( "index_ozk" );
             	cityCode = result.getString( "cityCode" );
                 city = result.getString( "city" );
                 street = result.getString( "street" );
-                domain = result.getString( "domain" );
-                link = result.getString( "link" );
+                domain = result.getString( "domain_url" );
+                link = result.getString( "link_url" );
                 blob = result.getString( "blob" );
                 timestamp = result.getLong( "timestamp" );
                 buildingNo = result.getString( "buildingNo" );
                 apartamentNo = result.getString( "apartamentNo" );
                 count = result.getInt( "count" );
-                addresses.add(new Address(addressId,cityCode,city,street,domain,link,blob,timestamp,buildingNo,apartamentNo,count));
+                flag = result.getString( "apartamentNo" );
+                addresses.add(new Address(addressId,name, phone, email, index, cityCode,city,street,domain,link,blob,timestamp,buildingNo,apartamentNo,count, flag));
             }
         } catch (SQLException e) {
         	Logger.error("Error fetching addresses: ",e);
