@@ -30,8 +30,8 @@ public class AddressFrame extends javax.swing.JFrame {
     private static int index;
     private static AddressFrame frame;
     private String linkSource;
-    private DatabaseHelper dbConnection;
-    private ProgressFrame parent;
+    private final DatabaseHelper dbConnection;
+    private final ProgressFrame parent;
     
     /**
      * Creates new form AddressFrame
@@ -58,37 +58,43 @@ public class AddressFrame extends javax.swing.JFrame {
     {
         resetFields();
         
-        if( ParserData.getParsingResults().isEmpty() )
-        {
+        if( ParserData.getParsingResults().isEmpty() ){
             closingTime();
             return;
         }
         
-        BlobResult result =  ParserData.getParsingResults().get(index);
-                
+        final BlobResult result =  ParserData.getParsingResults().get(index);
         linkSource = result.getLinkUrl().toString();
-        jLabel7.setText("Pozostało "+ParserData.getBlobResultSize()+" adresów do przetworzenia.");
-        jTextArea1.setText(result.getBlob());
         
-        
-        if( !result.getParserResult().isEmpty() ){
-            BlobResultModel newModel = new BlobResultModel( result );
-            jList1.setModel( newModel );
-            jList1.setSelectedIndex(0);
-            jList1.revalidate();
-        }
-        else{
-            jList1.setModel(new javax.swing.AbstractListModel() {
-                public int getSize() { return 1; }
-                public String getElementAt(int i) { return "Nie udało się przetworzyć"; }
-            });
-        }
+        /* on GUI thread */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                jLabel7.setText("Pozostało "+ParserData.getBlobResultSize()+" adresów do przetworzenia.");
+                jTextArea1.setText(result.getBlob());
+                
+                if( !result.getParserResult().isEmpty() ){
+                    BlobResultModel newModel = new BlobResultModel( result );
+                    jList1.setModel( newModel );
+                    jList1.setSelectedIndex(0);
+                }
+                else{
+                    jList1.setModel(new javax.swing.AbstractListModel() {
+                        public int getSize() { return 1; }
+                        public String getElementAt(int i) { return "Nie udało się przetworzyć"; }
+                    });
+                }
+                
+            }
+                
+        });
+
     }
 
     private void closingTime(){
         updateDatabase();
         this.setVisible(false);
-        if(parent != null) parent.setVisible(false);
+        if(parent != null) parent.closingTime();
     }
     
     private void myInit()
@@ -117,31 +123,44 @@ public class AddressFrame extends javax.swing.JFrame {
     
     public void refreshAddressFields(){
         
-        try{
-            Address address = (Address)jList1.getSelectedValue();
-            if(address==null){
-                return;
-            }
-            jTextField2.setText(address.getName());
-            jTextField1.setText(address.getStreet());
-            jTextField3.setText(address.getBuildingNo());
-            jTextField4.setText(address.getApartamentNo());
-            jTextField5.setText(address.getCityCode());
-            jTextField6.setText(address.getCity());
-        }
-        catch(Exception e){
+        if(jList1.getSelectedValue() instanceof String){
             return;
         }
+        
+        final Address address = (Address)jList1.getSelectedValue();
+        if(address==null){
+            return;
+        }
+        
+        /* on GUI thread */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                jTextField2.setText(address.getName());
+                jTextField1.setText(address.getStreet());
+                jTextField3.setText(address.getBuildingNo());
+                jTextField4.setText(address.getApartamentNo());
+                jTextField5.setText(address.getCityCode());
+                jTextField6.setText(address.getCity());
+            }
+            
+        });
         
     }
     
     public void resetFields(){
-        jTextField2.setText("");
-        jTextField1.setText("");
-        jTextField3.setText("");
-        jTextField4.setText("");
-        jTextField5.setText("");
-        jTextField6.setText("");
+        /* on GUI thread */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                jTextField2.setText("");
+                jTextField1.setText("");
+                jTextField3.setText("");
+                jTextField4.setText("");
+                jTextField5.setText("");
+                jTextField6.setText("");
+            }
+        });
     }
     
     private void updateDatabase()
@@ -405,7 +424,9 @@ public class AddressFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        ParserData.addNewAddress( new Address( jTextField2.getText(), jTextField6.getText(), jTextField5.getText(), jTextField1.getText(), jTextField3.getText(), jTextField4.getText(), ParserData.getParsingResults().get(index).getDomainUrl(), ParserData.getParsingResults().get(index).getLinkUrl(),jTextArea1.getText() ));
+        Address newAddress = new Address( jTextField2.getText(), jTextField6.getText(), jTextField5.getText(), jTextField1.getText(), jTextField3.getText(), jTextField4.getText(), ParserData.getParsingResults().get(index).getDomainUrl(), ParserData.getParsingResults().get(index).getLinkUrl(),jTextArea1.getText() );
+        ParserData.addNewAddress( newAddress );
+        parent.updateProgress("\nDodano adres:\n"+newAddress.toString());
         disposeBlobResult();
     }//GEN-LAST:event_jButton2ActionPerformed
 

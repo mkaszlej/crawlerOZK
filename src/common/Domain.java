@@ -1,5 +1,7 @@
 package common;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import util.Logger;
 import util.Url;
 
@@ -120,7 +122,9 @@ public class Domain {
     }
     
     public String getMeta(){
-        return "PRZETWORZONE: "+Boolean.toString(visited > 0)+"\n"+
-               "DATA OSTATNIEJ ZMIANY: "+timestamp+"\n";           
+        Timestamp stamp = new Timestamp(timestamp);
+        Date date = new Date(stamp.getTime());
+        return "<html>Przetworzono dotąd "+visited+" razy<br>"+
+               "Ostatnio "+date+"</html>";           
     }
 }

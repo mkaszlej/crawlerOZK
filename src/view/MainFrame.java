@@ -12,17 +12,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JTree;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
-import parser.ParserThreadPool;
-import seeker.SeekerApp;
-import seeker.SeekerThreadPool;
+import util.Logger;
 
 /**
  *
@@ -46,36 +39,28 @@ public class MainFrame extends javax.swing.JFrame {
         myInitComponents();
     }
     
+    public void closingTime(){
+        //RESTARTING
+        resetFields();
+        generateTree();
+    }
+    
     public void resetFields()
     {
-        jTextField1.setText("");
-        jTextField2.setText("");
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                jButton1.setEnabled(true);
+                jButton2.setEnabled(false);
+                jTextField1.setText("");
+                jTextField2.setText("");
+            }
+        });
     }
     
     private void myInitComponents(){
         
         generateTree();
-        
-        jTree1.addTreeSelectionListener(new TreeSelectionListener() { 
-            @Override 
-            public void valueChanged(TreeSelectionEvent e) 
-            { 
-                manual = false;
-                DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
-                if(selectedNode.getUserObject() instanceof String)
-                {
-                    resetFields();
-                    selectedDomain = null;
-                    return;
-                }
-                Domain domain = (Domain)selectedNode.getUserObject();
-                jTextField1.setText(domain.getUrl().toString());
-                jTextField2.setText(domain.getSearchDepth()+"");
-                jLabel4.setText(domain.getMeta());
-                selectedDomain = domain;
-            }
-
-        });
         
         jTextField1.addKeyListener(new KeyListener() {
 
@@ -86,7 +71,7 @@ public class MainFrame extends javax.swing.JFrame {
             @Override
             public void keyPressed(KeyEvent e) {
                 manual = true;
-                jLabel4.setText("Wprowadzono nową domenę.");
+                jLabel5.setText("Wprowadzono nową domenę.");
             }
 
             @Override
@@ -147,9 +132,39 @@ public class MainFrame extends javax.swing.JFrame {
 
         }
         
+        //TODO not on GUI thread
         jTree1 = new javax.swing.JTree(root);
         jTree1.setRootVisible(false);
-        jScrollPane2.setViewportView(jTree1);
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                jScrollPane2.setViewportView(jTree1);
+                jTree1.addTreeSelectionListener(new TreeSelectionListener() { 
+                    @Override 
+                    public void valueChanged(TreeSelectionEvent e) 
+                    { 
+                        manual = false;
+                        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
+                        if(selectedNode.getUserObject() instanceof String)
+                        {
+                            resetFields();
+                            selectedDomain = null;
+                            return;
+                        }
+                        Domain domain = (Domain)selectedNode.getUserObject();
+                        jTextField1.setText(domain.getUrl().toString());
+                        jTextField2.setText(domain.getSearchDepth()+"");
+                        jLabel5.setText(domain.getMeta());
+                        selectedDomain = domain;
+                        if(domain.isProcessed()) jButton2.setEnabled(true);
+                        else jButton2.setEnabled(false);
+                    }
+
+                });
+            }
+        });
         
     }
     
@@ -167,27 +182,22 @@ public class MainFrame extends javax.swing.JFrame {
         jTextField1 = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jTextField2 = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
-        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jLabel1.setText("URL:");
+        jLabel1.setText("Adres do przeszukania:");
 
-        jTextField1.setText("http://www.rozan.eur.pl/");
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextField1ActionPerformed(evt);
             }
         });
 
-        jLabel2.setText("POZIOM:");
-
-        jTextField2.setText("1");
-
-        jLabel3.setText("INFORMACJE:");
+        jLabel2.setText("Głębokość przeszukiwania:");
 
         jButton1.setText("Przetworz");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -196,7 +206,15 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
-        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabel5.setText("Wprowadź nową domenę, lub wybierz z listy powyżej.");
+
+        jButton2.setText("Generuj plik .csv");
+        jButton2.setEnabled(false);
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -208,10 +226,10 @@ public class MainFrame extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel3))
+                    .addComponent(jLabel2))
                 .addGap(0, 0, Short.MAX_VALUE))
-            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -224,10 +242,10 @@ public class MainFrame extends javax.swing.JFrame {
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(4, 4, 4)
-                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 58, Short.MAX_VALUE)
+                .addComponent(jButton2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton1)
                 .addGap(0, 0, Short.MAX_VALUE))
@@ -248,7 +266,7 @@ public class MainFrame extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 452, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 446, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -261,12 +279,19 @@ public class MainFrame extends javax.swing.JFrame {
 
         Domain domain;
         
+        if( jTextField1.getText().isEmpty() ) return;
+        
         if(manual) //Wprowadzono ręcznie
         {
             domain = new Domain(jTextField1.getText(), null, Integer.parseInt(jTextField2.getText() ) );
+            if(domainList.contains(domain))
+            {
+                Logger.warn("Domena już istnieje");
+                domain = domainList.get(domainList.indexOf(domain));
+            }
             domain.addVisit();
             
-            ProgressFrame progressFrame = new ProgressFrame(dbConnection, domain); 
+            ProgressFrame progressFrame = new ProgressFrame(this, dbConnection, domain); 
             progressFrame.start(dbConnection,domain);
         }
         else if(selectedDomain != null){
@@ -274,10 +299,16 @@ public class MainFrame extends javax.swing.JFrame {
             domain.setSearchDepth(Integer.parseInt(jTextField2.getText()));
             domain.addVisit();
             
-            ProgressFrame progressFrame = new ProgressFrame(dbConnection, domain); 
+            ProgressFrame progressFrame = new ProgressFrame(this, dbConnection, domain); 
             progressFrame.start(dbConnection,domain);
         }
         
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                jButton1.setEnabled(false);
+            }
+        });
 
         
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -285,6 +316,10 @@ public class MainFrame extends javax.swing.JFrame {
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
 
     }//GEN-LAST:event_jTextField1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
    
     /**
      * @param args the command line arguments
@@ -331,10 +366,10 @@ public class MainFrame extends javax.swing.JFrame {
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextField jTextField1;

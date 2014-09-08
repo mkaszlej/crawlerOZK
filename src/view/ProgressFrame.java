@@ -32,18 +32,32 @@ public class ProgressFrame extends javax.swing.JFrame implements PropertyChangeL
     
     private Domain domain;
     private Task task;
+    
+    private final MainFrame parent;
     private DatabaseHelper dbConnection;
-    private final AddressFrame addressFrame;
+    private AddressFrame addressFrame;
     
     /**
      * Creates new form ProgressFrame
      */
-    public ProgressFrame(DatabaseHelper db_connection, Domain domain_to_process) {
+    public ProgressFrame(MainFrame parentFrame, DatabaseHelper db_connection, Domain domain_to_process) {
         this.domain = domain_to_process;
         this.dbConnection = db_connection;
+        this.parent = parentFrame;
         this.addressFrame = new AddressFrame(dbConnection, this);
         initComponents();
         myInit();
+    }
+    
+    public void closingTime(){
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                setVisible(false);
+            }
+        });
+        if(parent != null) parent.closingTime();
+        this.addressFrame = null;
     }
     
     private void myInit(){
@@ -52,20 +66,14 @@ public class ProgressFrame extends javax.swing.JFrame implements PropertyChangeL
     }
 
     public void updateStatus(){
-        
-        final ProgressFrame instance = this;
-                
+       
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                instance.getStatusArea().setText("Przetwarzanie domeny:\n"+domain.getUrl()+"\n\nWątków (pracujących i oczekujących):\n"+SeekerThreadPool.counter.get() +" - poszukujących\n"+ParserThreadPool.counter.get()+" - parsujących\n\n"+ParserData.getBlobResultSize()+" - znalezionych adresów\n\n"+SeekerData.count());
+                jTextArea1.setText("Przetwarzanie domeny:\n"+domain.getUrl()+"\n\nWątków (pracujących i oczekujących):\n"+SeekerThreadPool.counter.get() +" - poszukujących\n"+ParserThreadPool.counter.get()+" - parsujących\n\n"+ParserData.getBlobResultSize()+" - znalezionych adresów\n\n"+SeekerData.count());
             }
         });
 		
     }
-    
-    public JTextArea getStatusArea(){
-        return jTextArea1;
-    };
     
     public void start(DatabaseHelper dbConnection, Domain domain){
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -85,6 +93,14 @@ public class ProgressFrame extends javax.swing.JFrame implements PropertyChangeL
 
     }
     
+    public void updateProgress(final String progress)
+    {
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                jTextArea2.append(progress+"\n");
+            }
+        });
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
