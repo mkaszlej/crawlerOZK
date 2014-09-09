@@ -2,23 +2,21 @@ package parser;
 
 
 import common.Address;
-import common.Link;
 import common.ParserData;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.jsoup.Jsoup;
 import util.Logger;
 import util.Url;
-import view.AddressFrame;
-import view.ProgressFrame;
 
 public class BlobUniformParser extends BlobParser {
 	
-	String cokolwiek = "([^0-9,<>/\\n\\(\\):]+)";
-        String budynek = "(\\d{1,5}[\\w]?)";
-        String mieszkanie = "([\\s\\\\/m\\.]+(\\d{0,5}))?";
-        String kod = regexCityCode;
-        String ul = "ul\\.\\s?";
+        private String phone="BD";
+        private String email="BD";
+	private final String cokolwiek = "([^0-9,<>/\\n\\(\\):]+)";
+        private final String budynek = "(\\d{1,5}[\\w]?)";
+        private final String mieszkanie = "([\\s\\\\/m\\.]+(\\d{0,5}))?";
+        private final String kod = regexCityCode;
+        private final String ul = "ul\\.\\s?";
         
 	public BlobUniformParser( Url domainUrl, Url linkUrl, String blob) {
 		super( domainUrl, linkUrl, blob);
@@ -28,6 +26,9 @@ public class BlobUniformParser extends BlobParser {
             
             System.out.println("@---  UNIFORM ---@\n"+blob);
 
+            parseEmail(blob);
+            parsePhone(blob);
+            
             miejskiUl(blob);
             miejski(blob);
 
@@ -53,6 +54,32 @@ public class BlobUniformParser extends BlobParser {
                 return  blob.substring(0,start);
 	}
 	
+        private void parsePhone(String blob)
+        {
+            String phoneRegex = "tel\\.:?\\s*([\\d\\s\\(\\)-]{9,})";
+            Pattern pattern = Pattern.compile(phoneRegex, Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(blob);
+            
+            if(matcher.find())
+            {
+                phone=matcher.group();
+            }
+
+        }
+
+        private void parseEmail(String blob)
+        {
+            String emailRegex = "\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b";
+            Pattern pattern = Pattern.compile(emailRegex, Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(blob);
+            
+            if(matcher.find())
+            {
+                email=matcher.group();
+            }
+
+        }
+        
 	private void miejski(String blob) {
 	    
             //ul. Cicha 132 m. 16[1]
@@ -79,6 +106,8 @@ public class BlobUniformParser extends BlobParser {
                                 
                 Address parsedAddress;
                 parsedAddress = new Address(nazwa, kodPocztowy, miejscowosc, ulica, nrDomu, nrMieszkania, domainUrl, linkUrl, blob );
+                parsedAddress.setPhone(phone);
+                parsedAddress.setEmail(email);
                 Logger.info(parsedAddress.toString());
                 parserResults.add("Standardowy",parsedAddress);
                 
@@ -116,6 +145,8 @@ public class BlobUniformParser extends BlobParser {
                                 
                 Address parsedAddress;
                 parsedAddress = new Address(nazwa, kodPocztowy, miejscowosc, ulica, nrDomu, nrMieszkania, domainUrl, linkUrl, blob );
+                parsedAddress.setPhone(phone);
+                parsedAddress.setEmail(email);
                 Logger.info(parsedAddress.toString());
                 parserResults.add("Standardowy odwrócony",parsedAddress);
                 
@@ -154,6 +185,8 @@ public class BlobUniformParser extends BlobParser {
                                 
                 Address parsedAddress;
                 parsedAddress = new Address(nazwa, kodPocztowy, miejscowosc, ulica, nrDomu, nrMieszkania, domainUrl, linkUrl, blob );
+                parsedAddress.setPhone(phone);
+                parsedAddress.setEmail(email);
                 Logger.info(parsedAddress.toString());
                 parserResults.add("Standardowy odwrócony z ul.",parsedAddress);
                                
@@ -186,6 +219,8 @@ public class BlobUniformParser extends BlobParser {
                                 
                 Address parsedAddress;
                 parsedAddress = new Address(nazwa, kodPocztowy, miejscowosc, ulica, nrDomu, nrMieszkania, domainUrl, linkUrl, blob );
+                parsedAddress.setPhone(phone);
+                parsedAddress.setEmail(email);
                 Logger.info(parsedAddress.toString());
                 parserResults.add("Standardowy z ul.",parsedAddress);
                 
@@ -218,6 +253,8 @@ public class BlobUniformParser extends BlobParser {
 
                 Address parsedAddress;
                 parsedAddress = new Address(nazwa, kodPocztowy, miejscowosc, ulica, nrDomu, nrMieszkania, domainUrl, linkUrl, blob );
+                parsedAddress.setPhone(phone);
+                parsedAddress.setEmail(email);
                 Logger.info(parsedAddress.toString());
                 parserResults.add("Bez nr domu/mieszkania",parsedAddress);
 
@@ -251,6 +288,8 @@ public class BlobUniformParser extends BlobParser {
 
                 Address parsedAddress;
                 parsedAddress = new Address(nazwa, kodPocztowy, miejscowosc, ulica, nrDomu, nrMieszkania, domainUrl, linkUrl, blob );
+                parsedAddress.setPhone(phone);
+                parsedAddress.setEmail(email);
                 Logger.info(parsedAddress.toString());
                 parserResults.add("Bez nr domu/mieszkania z ul.",parsedAddress);
             }
@@ -281,6 +320,8 @@ public class BlobUniformParser extends BlobParser {
 
                 Address parsedAddress;
                 parsedAddress = new Address(nazwa, kodPocztowy, miejscowosc, ulica, nrDomu, nrMieszkania, domainUrl, linkUrl, blob );
+                parsedAddress.setPhone(phone);
+                parsedAddress.setEmail(email);
                 Logger.info(parsedAddress.toString());
                 parserResults.add("Bez nr domu/mieszkania odwrócony",parsedAddress);
                 
@@ -312,6 +353,8 @@ public class BlobUniformParser extends BlobParser {
 
                 Address parsedAddress;
                 parsedAddress = new Address(nazwa, kodPocztowy, miejscowosc, ulica, nrDomu, nrMieszkania, domainUrl, linkUrl, blob );
+                parsedAddress.setPhone(phone);
+                parsedAddress.setEmail(email);
                 Logger.info(parsedAddress.toString());
                 parserResults.add("Bez nr domu/mieszkania odwrócony z ul.",parsedAddress);
                 
@@ -342,6 +385,8 @@ public class BlobUniformParser extends BlobParser {
 
                 Address parsedAddress;
                 parsedAddress = new Address(nazwa, kodPocztowy, miejscowosc, ulica, nrDomu, nrMieszkania, domainUrl, linkUrl, blob );
+                parsedAddress.setPhone(phone);
+                parsedAddress.setEmail(email);
                 Logger.info(parsedAddress.toString());
                 parserResults.add("Kod i miasto",parsedAddress);
             }
@@ -349,5 +394,3 @@ public class BlobUniformParser extends BlobParser {
 	}
 	
 }
-
-//TODO: Komornica ul. Pogodna 30, 05-135 Wieliszew
