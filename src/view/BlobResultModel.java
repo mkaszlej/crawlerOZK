@@ -7,8 +7,6 @@
 package view;
 
 import common.Address;
-import java.util.ArrayList;
-import java.util.List;
 import javax.swing.AbstractListModel;
 import javax.swing.ListModel;
 import parser.BlobResult;
@@ -17,7 +15,7 @@ import parser.BlobResult;
  *
  * @author mkaszlej
  */
-public class BlobResultModel extends AbstractListModel<Address> implements ListModel<Address>{
+public class BlobResultModel extends AbstractListModel implements ListModel{
 
     private final BlobResult result;
 
