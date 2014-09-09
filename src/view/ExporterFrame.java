@@ -10,22 +10,31 @@ import common.Address;
 import common.Domain;
 import database.DatabaseHelper;
 import java.awt.Cursor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFileChooser;
 import javax.swing.SwingWorker;
 
 /**
  *
  * @author mkaszlej
  */
-public class ExporterFrame extends javax.swing.JFrame {
+public class ExporterFrame extends javax.swing.JFrame implements PropertyChangeListener {
 
     private database.DatabaseHelper dbConnection;
     private Domain domain;
     private Task task;
     private final MainFrame parent;
+    private String path = null;
     
     /**
      * Creates new form ExporterFrame
@@ -35,6 +44,11 @@ public class ExporterFrame extends javax.swing.JFrame {
         this.domain = domain_to_export;
         this.dbConnection = dbConnection;
         initComponents();
+        myInit();
+    }
+    
+    private void myInit(){
+        jButton1.addActionListener(new SaveL());
     }
 
     public void closingTime(){
@@ -57,22 +71,19 @@ public class ExporterFrame extends javax.swing.JFrame {
 		
     }
     
-    public void start(DatabaseHelper dbConnection, Domain domain){
+    private void start(DatabaseHelper dbConnection, Domain domain){
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        // Instances of javax.swing.SwingWorker are not reusuable, so
-        // we create new instances as needed.
         task = new ExporterFrame.Task();
         task.execute();
-        
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                setVisible(true);
-            }
-        });
-
     }
     
-    
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if ("progress".equals(evt.getPropertyName())) {
+          int progress = (Integer) evt.getNewValue();
+          jProgressBar1.setValue(progress);
+        }
+    } 
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -196,7 +207,10 @@ public class ExporterFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        start(dbConnection, domain);
+        if( path != null ) 
+            start(dbConnection, domain);
+        else
+            jTextArea1.append("\nProszę podać ścieżkę do zapisu");
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
@@ -215,6 +229,26 @@ public class ExporterFrame extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 
+    class SaveL implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser c = new JFileChooser();
+            // Demonstrate "Save" dialog:
+            int rVal = c.showSaveDialog(ExporterFrame.this);
+            if (rVal == JFileChooser.APPROVE_OPTION) {
+                path = c.getSelectedFile().getPath();
+
+                /* Create and display the form */
+                java.awt.EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        jTextField1.setText(path);
+                    }
+                });
+
+            }
+        }
+    }
+    
 
     class Task extends SwingWorker<Void, String> {
     
@@ -235,13 +269,30 @@ public class ExporterFrame extends javax.swing.JFrame {
             setProgress(5);
             publish("Wczytano "+addresses.size()+" z bazy dla domeny:"+domain.getUrl()+"\n------\n");
             
-            int i=0, max = addresses.size();
-            for (Address address : addresses) {
-                String out = address.getCity()+"|"+"BD"+"|"+address.getIndex()+"|"+address.getCategory()+"|"+address.getName()+"|"+address.getStreet()+"|"+address.getBuildingNo()+"|"+address.getApartamentNo()+"|"+address.getCityCode()+"|"+address.getCity()+"|"+address.getPhone()+"|"+address.getEmail()+"|"+"BD"+"|"+"BD"+"|"+address.getFlag();
-                publish(out);                
-                setProgress(Math.abs(i/max*100));
+            PrintWriter writer;
+            try {
+                
+                writer = new PrintWriter(path, "UTF-8");
+                int i=0, max = addresses.size();
+                for (Address address : addresses) {
+                    String out = address.getCity()+"|"+"BD"+"|"+address.getIndex()+"|"+address.getCategory()+"|"+address.getName()+"|"+address.getStreet()+"|"+address.getBuildingNo()+"|"+address.getApartamentNo()+"|"+address.getCityCode()+"|"+address.getCity()+"|"+address.getPhone()+"|"+address.getEmail()+"|"+"BD"+"|"+"BD"+"|"+address.getFlag();
+                    writer.println(out);
+                    publish("Eksport domeny: "+domain+" zakończono.");           
+                    setProgress(Math.abs(i/max*100));
+                }
+                writer.close();
+                
+                setProgress(100);
+                publish("\n------\nEksport zakończony. Zapisano do pliku:\n"+path);
+
+            } catch (FileNotFoundException ex) {
+                setProgress(100);
+                publish("\n------\nBład - nie można stworzyć pliku:\n"+path);
+            } catch (UnsupportedEncodingException ex) {
+                setProgress(100);
+                publish("\n------\nBład - błąd kodowania.\n");
             }
-            
+
             return null;
         }
 
@@ -258,6 +309,7 @@ public class ExporterFrame extends javax.swing.JFrame {
 
         @Override
         protected void done() {
+            setCursor(null); // turn off the wait cursor
             super.done(); //To change body of generated methods, choose Tools | Templates.
         }
                
