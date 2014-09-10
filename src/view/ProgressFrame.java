@@ -214,7 +214,7 @@ public class ProgressFrame extends javax.swing.JFrame implements PropertyChangeL
         publish("Crawler zainicjowany.\n------------\n");
         
         SeekerData.loadLinkList(dbConnection.getLinks(domain));
-        ParserData.loadAddressList(dbConnection.getAddresses(domain));
+        //ParserData.loadAddressList(dbConnection.getAddresses(domain));
 
         setProgress(15);
         publish("Wczytano zawartość bazy danych dla domeny: "+domain.getUrl()+"\n------------\n");

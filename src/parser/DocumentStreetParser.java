@@ -22,7 +22,7 @@ public class DocumentStreetParser extends DocumentParser {
     
     public void parse(){
         
-        Pattern pattern = Pattern.compile("(.{10,250}[\\s]+([au]l\\.){1}.{10,250})", Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("(.{10,250}[\\s]+([aup]l\\.){1}.{10,250})", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(data);
         
         // check all occurences

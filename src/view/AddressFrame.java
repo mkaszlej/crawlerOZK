@@ -144,6 +144,7 @@ public class AddressFrame extends javax.swing.JFrame {
                 jTextField6.setText(address.getCity());
                 jTextField8.setText(address.getPhone());
                 jTextField7.setText(address.getEmail());
+                jLabel8.setText(address.getLink().toString());
             }
             
         });
@@ -163,6 +164,7 @@ public class AddressFrame extends javax.swing.JFrame {
                 jTextField6.setText("");
                 jTextField7.setText("");
                 jTextField8.setText("");
+                jLabel8.setText("Źródło");
                 jComboBox1.setSelectedIndex(0);
                 jComboBox2.setSelectedIndex(0);
             }
