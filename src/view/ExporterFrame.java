@@ -104,7 +104,7 @@ public class ExporterFrame extends javax.swing.JFrame implements PropertyChangeL
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jLabel1.setText("Plik do zapisu:");
+        jLabel1.setText("Plik do zapisu (dla wygody dodaj rozszerzenie .csv):");
 
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -145,16 +145,16 @@ public class ExporterFrame extends javax.swing.JFrame implements PropertyChangeL
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 620, Short.MAX_VALUE)
-                    .addComponent(jProgressBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jProgressBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 620, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jTextField1)
+                        .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 511, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 620, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel1)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 250, Short.MAX_VALUE))
+                    .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, 620, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -271,6 +271,7 @@ public class ExporterFrame extends javax.swing.JFrame implements PropertyChangeL
             try {
                 
                 writer = new PrintWriter(path, "UTF-8");
+                writer.println("sep=|");
                 writer.println("GMINA|TERYT|INDEX|KATEGORIA|NAZWA|ULICA|NR_BUDYNKU|NR_MIESZKANIA|KOD POCZTOWY|MIASTO|TELEFON|EMAIL|ILOŚĆ_MIEJSC|ZATRUDNIENIE|FLAGA|GODZINY PRACY PN|GODZINY PRACY WT|GODZINY PRACY SR|GODZINY PRACY CZW|GODZINY PRACY PT|GODZINY PRACY SO|GODZINY PRACY ND|GODZINY PRACY PN_WAKACJE|GODZINY PRACY WT_WAKACJE|GODZINY PRACY SR_WAKACJE|GODZINY PRACY CZW_WAKACJE|GODZINY PRACY PT_WAKACJE|GODZINY PRACY SO_WAKACJE|GODZINY PRACY ND_WAKACJE|GODZINY PRACY SWIETO|FORMA_DZIALANOSCI|PODJAZD|WNETRZE|NIESLYSZACY|NIEWIDOMI|RODZIC_Z_DZIECKIEM|WINDY|TOALETY|INNE|KOMENTARZ|KOMENTARZ_KORESPONDENTA|STRONA_WWW");
                 int i=0, max = addresses.size();
                 for (Address address : addresses) {
