@@ -19,8 +19,6 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.SwingWorker;
 
@@ -273,9 +271,10 @@ public class ExporterFrame extends javax.swing.JFrame implements PropertyChangeL
             try {
                 
                 writer = new PrintWriter(path, "UTF-8");
+                writer.println("GMINA|TERYT|INDEX|KATEGORIA|NAZWA|ULICA|NR_BUDYNKU|NR_MIESZKANIA|KOD POCZTOWY|MIASTO|TELEFON|EMAIL|ILOŚĆ_MIEJSC|ZATRUDNIENIE|FLAGA|GODZINY PRACY PN|GODZINY PRACY WT|GODZINY PRACY SR|GODZINY PRACY CZW|GODZINY PRACY PT|GODZINY PRACY SO|GODZINY PRACY ND|GODZINY PRACY PN_WAKACJE|GODZINY PRACY WT_WAKACJE|GODZINY PRACY SR_WAKACJE|GODZINY PRACY CZW_WAKACJE|GODZINY PRACY PT_WAKACJE|GODZINY PRACY SO_WAKACJE|GODZINY PRACY ND_WAKACJE|GODZINY PRACY SWIETO|FORMA_DZIALANOSCI|PODJAZD|WNETRZE|NIESLYSZACY|NIEWIDOMI|RODZIC_Z_DZIECKIEM|WINDY|TOALETY|INNE|KOMENTARZ|KOMENTARZ_KORESPONDENTA");
                 int i=0, max = addresses.size();
                 for (Address address : addresses) {
-                    String out = address.getCity()+"|"+"BD"+"|"+address.getIndex()+"|"+address.getCategory()+"|"+address.getName()+"|"+address.getStreet()+"|"+address.getBuildingNo()+"|"+address.getApartamentNo()+"|"+address.getCityCode()+"|"+address.getCity()+"|"+address.getPhone()+"|"+address.getEmail()+"|"+"BD"+"|"+"BD"+"|"+address.getFlag();
+                    String out = address.getCity()+"|"+"BD"+"|"+address.getIndex()+"|"+address.getCategory()+"|"+address.getName()+"|"+address.getStreet()+"|"+address.getBuildingNo()+"|"+address.getApartamentNo()+"|"+address.getCityCode()+"|"+address.getCity()+"|"+address.getPhone()+"|"+address.getEmail()+"|"+"BD"+"|"+"BD"+"|"+address.getFlag()+"|"+address.getPn()+"|"+address.getWt()+"|"+address.getSr()+"|"+address.getCzw()+"|"+address.getPt()+"|"+address.getSo()+"|"+address.getNd()+"|"+address.getPn_wakacje()+"|"+address.getWt_wakacje()+"|"+address.getSr_wakacje()+"|"+address.getCzw_wakajce()+"|"+address.getPt_wakacje()+"|"+address.getSo_wakacje()+"|"+address.getNd_wakacje()+"|"+address.getSw()+"|"+address.getFormaDzialanosci()+"|"+address.getPodjazd()+"|"+address.getWnetrze()+"|"+address.getNieslyszacy()+"|"+address.getNiewidomi()+"|"+address.getRodzic_z_dzieckiem()+"|"+address.getWindy()+"|"+address.getToalety()+"|"+address.getInne()+"|"+address.getKomentarz()+"|"+address.getKomentarz_korespondenta();
                     writer.println(out);
                     publish("Eksport domeny: "+domain+" zakończono.");           
                     setProgress(Math.abs(i/max*100));
