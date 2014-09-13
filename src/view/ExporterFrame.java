@@ -106,6 +106,7 @@ public class ExporterFrame extends javax.swing.JFrame implements PropertyChangeL
 
         jLabel1.setText("Plik do zapisu (dla wygody dodaj rozszerzenie .csv):");
 
+        jTextField1.setEditable(false);
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextField1ActionPerformed(evt);
@@ -270,7 +271,7 @@ public class ExporterFrame extends javax.swing.JFrame implements PropertyChangeL
             PrintWriter writer;
             try {
                 
-                writer = new PrintWriter(path, "UTF-8");
+                writer = new PrintWriter(path, "windows-1252");
                 writer.println("sep=|");
                 writer.println("GMINA|TERYT|INDEX|KATEGORIA|NAZWA|ULICA|NR_BUDYNKU|NR_MIESZKANIA|KOD POCZTOWY|MIASTO|TELEFON|EMAIL|ILOŚĆ_MIEJSC|ZATRUDNIENIE|FLAGA|GODZINY PRACY PN|GODZINY PRACY WT|GODZINY PRACY SR|GODZINY PRACY CZW|GODZINY PRACY PT|GODZINY PRACY SO|GODZINY PRACY ND|GODZINY PRACY PN_WAKACJE|GODZINY PRACY WT_WAKACJE|GODZINY PRACY SR_WAKACJE|GODZINY PRACY CZW_WAKACJE|GODZINY PRACY PT_WAKACJE|GODZINY PRACY SO_WAKACJE|GODZINY PRACY ND_WAKACJE|GODZINY PRACY SWIETO|FORMA_DZIALANOSCI|PODJAZD|WNETRZE|NIESLYSZACY|NIEWIDOMI|RODZIC_Z_DZIECKIEM|WINDY|TOALETY|INNE|KOMENTARZ|KOMENTARZ_KORESPONDENTA|STRONA_WWW");
                 int i=0, max = addresses.size();
