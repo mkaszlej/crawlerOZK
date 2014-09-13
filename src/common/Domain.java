@@ -34,7 +34,7 @@ public class Domain {
 	
     public Domain(Link l)
     {
-    	this.domain_url = l.getUrl();
+    	this.domain_url = checkDomainUrl(l.getUrl().toString());
         this.parent_url = new Url(l.getDomainUrl());
     	this.search_depth = 1;
     	this.timestamp = l.getTimestamp();
@@ -42,7 +42,7 @@ public class Domain {
     }
 
     public Domain(String domain_url, String parent_url, int search_depth) {
-    	this.domain_url = new Url(domain_url);
+    	this.domain_url = new Url(checkDomainUrl(domain_url).toString());
         this.parent_url = new Url(parent_url);
     	this.search_depth = search_depth;
     	this.timestamp = System.currentTimeMillis();
