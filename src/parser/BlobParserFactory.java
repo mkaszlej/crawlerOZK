@@ -12,12 +12,12 @@ public class BlobParserFactory {
         UniformParser
     }
  
-    public static BlobParser createParser(ParserType parserType, Url domainUrl, Url linkUrl, String blob) {
+    public static BlobParser createParser(ParserType parserType, Url domainUrl, Url linkUrl, String blob, String htmlBlob) {
         switch (parserType) {
             //case StepParser:
             //    return new BlobStepParser(a);
             case UniformParser:
-            	return new BlobUniformParser( domainUrl, linkUrl, blob);
+            	return new BlobUniformParser( domainUrl, linkUrl, blob, htmlBlob);
         }
         throw new IllegalArgumentException("Parser type " + parserType + " is not recognized.");
     }

@@ -13,8 +13,8 @@ public class BlobStepParser extends BlobParser {
 	private String buildingNo;
 	private String apartamentNo;
 		
-	public BlobStepParser(Url domainUrl, Url linkUrl, String blob) {
-		super( domainUrl, linkUrl, blob);
+	public BlobStepParser(Url domainUrl, Url linkUrl, String blob, String htmlBlob) {
+		super( domainUrl, linkUrl, blob, htmlBlob);
 	}
 	
 	public void parse() {

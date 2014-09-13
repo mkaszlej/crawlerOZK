@@ -29,8 +29,8 @@ public abstract class BlobParser {
     protected String buildingNo;
     protected String apartamentNo;
     
-    BlobParser(Url domainUrl, Url linkUrl, String blob){
-        this.parserResults = new BlobResult( domainUrl, linkUrl, blob );
+    BlobParser(Url domainUrl, Url linkUrl, String blob, String htmlBlob){
+        this.parserResults = new BlobResult( domainUrl, linkUrl, blob, htmlBlob );
         this.domainUrl = domainUrl;
         this.linkUrl = linkUrl;
         this.blob = blob;

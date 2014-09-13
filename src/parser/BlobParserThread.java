@@ -12,12 +12,13 @@ public class BlobParserThread implements Runnable {
 
     	private Url domainUrl;
 	private Url linkUrl;
-        private String blob;
+        private String blob, htmlBlob;
 	
-	public BlobParserThread( Url domainUrl, Url linkUrl, String blob) {
+	public BlobParserThread( Url domainUrl, Url linkUrl, String blob, String htmlBlob) {
             this.domainUrl = domainUrl;
             this.linkUrl = linkUrl;
             this.blob = blob;
+            this.htmlBlob = htmlBlob;
 	}
 	
 	public void run()
@@ -30,7 +31,7 @@ public class BlobParserThread implements Runnable {
 		
 		for (ParserType type : BlobParserFactory.ParserType.values()) {
                     try{
-                        BlobParser p = BlobParserFactory.createParser( type, domainUrl, linkUrl, blob);
+                        BlobParser p = BlobParserFactory.createParser( type, domainUrl, linkUrl, blob, htmlBlob);
                         p.parse();
                     }
                     catch(IllegalArgumentException e){

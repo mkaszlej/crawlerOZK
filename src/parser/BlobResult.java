@@ -22,6 +22,7 @@ public class BlobResult {
     private final Url linkUrl;
     
     private final String blob;
+    private final String htmlBlob;
     
     private ArrayList<Address> parserResult;
 
@@ -31,10 +32,11 @@ public class BlobResult {
      * @param linkUrl
      * @param blob
      */
-    public BlobResult(Url domainUrl, Url linkUrl, String blob) {
+    public BlobResult(Url domainUrl, Url linkUrl, String blob, String htmlBlob) {
         this.domainUrl = domainUrl;
         this.linkUrl = linkUrl;
         this.blob = blob;
+        this.htmlBlob = htmlBlob;
         parserResult = new ArrayList<Address>();
     }
     
@@ -46,6 +48,11 @@ public class BlobResult {
         return blob;
     }
 
+    public String getHtmlBlob() {
+        return htmlBlob;
+    }
+
+    
     public Url getDomainUrl() {
         return domainUrl;
     }

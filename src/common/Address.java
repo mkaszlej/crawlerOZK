@@ -5,11 +5,15 @@ import util.Url;
 public class Address {
 
         private String name=null, phone=null, email=null, index=null, cityCode=null, city=null, street=null, domain=null, blob=null, buildingNo=null, apartamentNo=null, flag=null, category=null;
-	private long timestamp;
+	private String htmlString = null;
+        private long timestamp;
 	private int addressId,  count;
 	private Url link;
 	
-
+        String formaDzialanosci=null, pn=null, wt=null,sr=null,czw=null,pt=null,so=null,nd=null,sw=null,pn_wakacje=null,wt_wakacje=null,sr_wakacje=null,czw_wakajce=null,pt_wakacje=null,so_wakacje=null,nd_wakacje=null;
+        String podjazd=null,wnetrze=null,nieslyszacy=null,niewidomi=null,rodzic_z_dzieckiem=null,windy=null,toalety=null,inne=null;
+        String komentarz=null,komentarz_korespondenta=null;
+        
 	@Override
 	public boolean equals(Object o){
 	    if(o == null)            return false;
@@ -86,6 +90,222 @@ public class Address {
         this.timestamp = System.currentTimeMillis();             
     }
 
+    public void setCzw(String czw) {
+        this.czw = czw;
+    }
+
+    public void setCzw_wakajce(String czw_wakajce) {
+        this.czw_wakajce = czw_wakajce;
+    }
+
+    public void setFormaDzialanosci(String formaDzialanosci) {
+        this.formaDzialanosci = formaDzialanosci;
+    }
+
+    public void setInne(String inne) {
+        this.inne = inne;
+    }
+
+    public void setKomentarz(String komentarz) {
+        this.komentarz = komentarz;
+    }
+
+    public void setKomentarz_korespondenta(String komentarz_korespondenta) {
+        this.komentarz_korespondenta = komentarz_korespondenta;
+    }
+
+    public void setNd(String nd) {
+        this.nd = nd;
+    }
+
+    public void setNd_wakacje(String nd_wakacje) {
+        this.nd_wakacje = nd_wakacje;
+    }
+
+    public void setNieslyszacy(String nieslyszacy) {
+        this.nieslyszacy = nieslyszacy;
+    }
+
+    public void setNiewidomi(String niewidomi) {
+        this.niewidomi = niewidomi;
+    }
+
+    public void setPn(String pn) {
+        this.pn = pn;
+    }
+
+    public void setPn_wakacje(String pn_wakacje) {
+        this.pn_wakacje = pn_wakacje;
+    }
+
+    public void setPodjazd(String podjazd) {
+        this.podjazd = podjazd;
+    }
+
+    public void setPt(String pt) {
+        this.pt = pt;
+    }
+
+    public void setPt_wakacje(String pt_wakacje) {
+        this.pt_wakacje = pt_wakacje;
+    }
+
+    public void setRodzic_z_dzieckiem(String rodzic_z_dzieckiem) {
+        this.rodzic_z_dzieckiem = rodzic_z_dzieckiem;
+    }
+
+    public void setSo_wakacje(String sb_wakacje) {
+        this.so_wakacje = sb_wakacje;
+    }
+
+    public void setSo(String so) {
+        this.so = so;
+    }
+
+    public void setSr(String sr) {
+        this.sr = sr;
+    }
+
+    public void setSr_wakacje(String sr_wakacje) {
+        this.sr_wakacje = sr_wakacje;
+    }
+
+    public void setSw(String sw) {
+        this.sw = sw;
+    }
+
+    public void setToalety(String toalety) {
+        this.toalety = toalety;
+    }
+
+    public void setWindy(String windy) {
+        this.windy = windy;
+    }
+
+    public void setWnetrze(String wnetrze) {
+        this.wnetrze = wnetrze;
+    }
+
+    public void setWt(String wt) {
+        this.wt = wt;
+    }
+
+    public void setWt_wakacje(String wt_wakacje) {
+        this.wt_wakacje = wt_wakacje;
+    }
+    
+    public void setHtmlString(String htmlString) {
+        this.htmlString = htmlString;
+    }
+
+    public String getCzw() {
+        return czw;
+    }
+
+    public String getCzw_wakajce() {
+        return czw_wakajce;
+    }
+
+    public String getFormaDzialanosci() {
+        return formaDzialanosci;
+    }
+
+    public String getInne() {
+        return inne;
+    }
+
+    public String getKomentarz() {
+        return komentarz;
+    }
+
+    public String getKomentarz_korespondenta() {
+        return komentarz_korespondenta;
+    }
+
+    public String getNd() {
+        return nd;
+    }
+
+    public String getNd_wakacje() {
+        return nd_wakacje;
+    }
+
+    public String getNieslyszacy() {
+        return nieslyszacy;
+    }
+
+    public String getNiewidomi() {
+        return niewidomi;
+    }
+
+    public String getPn() {
+        return pn;
+    }
+
+    public String getPn_wakacje() {
+        return pn_wakacje;
+    }
+
+    public String getPodjazd() {
+        return podjazd;
+    }
+
+    public String getPt() {
+        return pt;
+    }
+
+    public String getPt_wakacje() {
+        return pt_wakacje;
+    }
+
+    public String getRodzic_z_dzieckiem() {
+        return rodzic_z_dzieckiem;
+    }
+
+    public String getSo() {
+        return so;
+    }
+
+    public String getSo_wakacje() {
+        return so_wakacje;
+    }
+
+    public String getSr() {
+        return sr;
+    }
+
+    public String getSr_wakacje() {
+        return sr_wakacje;
+    }
+
+    public String getSw() {
+        return sw;
+    }
+
+    public String getToalety() {
+        return toalety;
+    }
+
+    public String getWindy() {
+        return windy;
+    }
+
+    public String getWnetrze() {
+        return wnetrze;
+    }
+
+    public String getWt() {
+        return wt;
+    }
+
+    public String getWt_wakacje() {
+        return wt_wakacje;
+    }
+    
+    public String getHtmlString() {
+        return htmlString;
+    }
+    
     public void setName(String name) {
         this.name = name;
     }

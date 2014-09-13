@@ -18,8 +18,8 @@ public class BlobUniformParser extends BlobParser {
         private final String kod = regexCityCode;
         private final String ul = "ul\\.\\s?";
         
-	public BlobUniformParser( Url domainUrl, Url linkUrl, String blob) {
-		super( domainUrl, linkUrl, blob);
+	public BlobUniformParser( Url domainUrl, Url linkUrl, String blob, String htmlBlob) {
+		super( domainUrl, linkUrl, blob, htmlBlob);
 	}
 	
 	public void parse() {

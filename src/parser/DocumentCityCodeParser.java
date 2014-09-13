@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import util.Logger;
-import view.ProgressFrame;
 
 public class DocumentCityCodeParser extends DocumentParser {
 	
@@ -24,7 +23,9 @@ public class DocumentCityCodeParser extends DocumentParser {
         
         // check all occurences
         while (matcher.find()) {
-          addresses.add(new Address( link, Jsoup.parse(matcher.group()).text() ));
+            Address address = new Address( link, Jsoup.parse(matcher.group()).text() );
+            address.setHtmlString(parseBig());
+            addresses.add(address);
         }
         
         for (Address address : addresses) {
@@ -33,6 +34,19 @@ public class DocumentCityCodeParser extends DocumentParser {
 
         Logger.parser("["+addresses.size()+"] PARSED URI: "+htmlData.baseUri());
 
+    }
+    
+    
+    public String parseBig(){
+    	
+        Pattern pattern = Pattern.compile("(.{0,1000}[\\s\\>]+[0-9]{2}\\-[0-9]{3}[\\s\\<]+.{0,1000})", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(data);
+        
+        // check all occurences
+        if (matcher.find()) {
+             return matcher.group();
+        }
+        return null;
     }
     
 }

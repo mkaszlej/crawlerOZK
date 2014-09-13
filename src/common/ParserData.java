@@ -37,7 +37,7 @@ public class ParserData {
             if(!processedAddresses.contains(address))
             {
                 //TODO przekazywanie jako URL
-                ParserThreadPool.execute(new BlobParserThread(new Url(address.getDomain()),address.getLink(), address.getBlob()));
+                ParserThreadPool.execute(new BlobParserThread(new Url(address.getDomain()),address.getLink(), address.getBlob(), address.getHtmlString() ));
                 processedAddresses.add(address);
             }
             else{
