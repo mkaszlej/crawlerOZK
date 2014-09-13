@@ -18,13 +18,13 @@ public class DocumentCityCodeParser extends DocumentParser {
 	
     public void parse(){
     	
-        Pattern pattern = Pattern.compile("(.{0,250}[\\s\\>]+[0-9]{2}\\-[0-9]{3}[\\s\\<]+.{0,250})", Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("([\\s\\>]+[0-9]{2}\\-[0-9]{3}[\\s\\<]+)", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(data);
         
         // check all occurences
         while (matcher.find()) {
-            Address address = new Address( link, Jsoup.parse(matcher.group()).text() );
-            address.setHtmlString(parseBig());
+            Address address = new Address( link, Jsoup.parse(parseBig(matcher.start(),matcher.end(),250)).text() );
+            address.setHtmlString(parseBig(matcher.start(),matcher.end(),1000));
             addresses.add(address);
         }
         
@@ -36,17 +36,15 @@ public class DocumentCityCodeParser extends DocumentParser {
 
     }
     
-    
-    public String parseBig(){
+    public String parseBig(int s, int e,int lenght){
     	
-        Pattern pattern = Pattern.compile("(.{0,1000}[\\s\\>]+[0-9]{2}\\-[0-9]{3}[\\s\\<]+.{0,1000})", Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(data);
-        
-        // check all occurences
-        if (matcher.find()) {
-             return matcher.group();
-        }
-        return null;
+        int start = s - lenght;
+        if( start <= 0 ) start = 0;
+        int end = e + lenght;
+        if( end > data.length() ) end =data.length();
+
+        return data.substring( start, end );
+
     }
     
 }

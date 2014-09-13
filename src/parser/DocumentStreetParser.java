@@ -22,12 +22,14 @@ public class DocumentStreetParser extends DocumentParser {
     
     public void parse(){
         
-        Pattern pattern = Pattern.compile("(.{10,250}[\\s]+([aup]l\\.){1}.{10,250})", Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("([\\s]+([aup]l\\.){1})", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(data);
         
         // check all occurences
         while (matcher.find()) {
-          addresses.add(new Address( link, Jsoup.parse(matcher.group()).text() ));
+            Address newAddress =new Address( link, Jsoup.parse(parseBig(matcher.start(), matcher.end(), 250)).text() );
+            newAddress.setHtmlString(parseBig(matcher.start(), matcher.end(), 1000));
+            addresses.add(newAddress);
         }
         
         for (Address address : addresses) {
@@ -36,5 +38,15 @@ public class DocumentStreetParser extends DocumentParser {
 
     }
 
+    public String parseBig(int s, int e,int lenght){
+    	
+        int start = s - lenght;
+        if( start <= 0 ) start = 0;
+        int end = e + lenght;
+        if( end > data.length() ) end =data.length();
+
+        return data.substring( start, end );
+
+    }
     
 }
