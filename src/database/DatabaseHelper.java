@@ -210,7 +210,8 @@ public class DatabaseHelper {
             ResultSet result = stat.executeQuery("SELECT * FROM address WHERE domain_url LIKE '"+domain_url+"'");
             
         	String name, phone, email, index, category, cityCode, city, street, domain, blob, link, buildingNo, apartamentNo, flag;
-        	long timestamp;
+        	String pn,wt,sr,czw,pt,so,nd,pnw,wtw,srw,czww,ptw,sow,ndw,sw,forma_dzialanosci,podjazd,wnetrze,nieslyszacy,niewidomi,rodzic_z_dzieckiem,windy,toalety,inne,komentarz,komentarz_korespondenta;
+                long timestamp;
         	int addressId, count;
             
             while(result.next()) {
@@ -231,7 +232,37 @@ public class DatabaseHelper {
                 apartamentNo = result.getString( "apartamentNo" );
                 count = result.getInt( "count" );
                 flag = result.getString( "apartamentNo" );
-                addresses.add(new Address(addressId,name, phone, email, index, category,cityCode,city,street,domain,link,blob,timestamp,buildingNo,apartamentNo,count, flag));
+                
+                Address newAddress = new Address(addressId,name, phone, email, index, category,cityCode,city,street,domain,link,blob,timestamp,buildingNo,apartamentNo,count, flag);
+                
+                newAddress.setPn( result.getString( "pn" ) );
+                newAddress.setPn_wakacje( result.getString( "pn_wakacje" ) );
+                newAddress.setWt( result.getString( "wt" ) );
+                newAddress.setWt_wakacje( result.getString( "wt_wakacje" ) );
+                newAddress.setSr( result.getString( "sr" ) );
+                newAddress.setSr_wakacje( result.getString( "sr_wakacje" ) );
+                newAddress.setCzw( result.getString( "czw" ) );
+                newAddress.setCzw_wakajce( result.getString( "czw_wakacje" ) );
+                newAddress.setPt( result.getString( "pt" ) );
+                newAddress.setPt_wakacje( result.getString( "pt_wakacje" ) );
+                newAddress.setSo( result.getString( "so" ) );
+                newAddress.setSo_wakacje( result.getString( "so_wakacje" ) );
+                newAddress.setNd( result.getString( "nd" ) );
+                newAddress.setNd_wakacje( result.getString( "nd_wakacje" ) );
+                newAddress.setSw( result.getString( "sw" ) );
+                newAddress.setFormaDzialanosci( result.getString( "forma_dzialanosci" ) );
+                newAddress.setPodjazd( result.getString( "podjazd" ) );
+                newAddress.setWnetrze( result.getString( "wnetrze" ) );
+                newAddress.setNieslyszacy( result.getString( "nieslyszacy" ) );
+                newAddress.setNiewidomi( result.getString( "niewidomi" ) );
+                newAddress.setRodzic_z_dzieckiem( result.getString( "rodzic_z_dzieckiem" ) );
+                newAddress.setWindy( result.getString( "windy" ) );
+                newAddress.setToalety( result.getString( "toalety" ) );
+                newAddress.setInne( result.getString( "inne" ) );
+                newAddress.setKomentarz( result.getString( "komentarz" ) );
+                newAddress.setKomentarz_korespondenta( result.getString( "komentarz_korespondenta" ) );
+
+                addresses.add(newAddress);
             }
         } catch (SQLException e) {
         	Logger.error("Error fetching addresses: ",e);

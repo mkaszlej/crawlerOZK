@@ -225,7 +225,7 @@ public class AddressFrame extends javax.swing.JFrame {
         address.setNd_wakacje(jTextField25.getText());
         address.setSw(jTextField27.getText());
         address.setPodjazd( Boolean.toString(jCheckBox1.isSelected()) );
-        address.setFormaDzialanosci(htmlBlob);
+        address.setFormaDzialanosci(jTextField12.getText());
         address.setNieslyszacy( Boolean.toString(jCheckBox4.isSelected()) );
         address.setNiewidomi( Boolean.toString(jCheckBox2.isSelected()) );
         address.setKomentarz( jTextArea2.getText() );
