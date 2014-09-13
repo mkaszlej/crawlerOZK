@@ -235,6 +235,7 @@ public class AddressFrame extends javax.swing.JFrame {
         address.setRodzic_z_dzieckiem( Boolean.toString(jCheckBox5.isSelected()) );
         address.setWnetrze( Boolean.toString(jCheckBox3.isSelected()) );
         address.setInne(jTextField28.getText());
+        address.setStrona_www(jTextField11.getText());
     }
     
     private void updateDatabase()

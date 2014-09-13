@@ -21,7 +21,7 @@ public class DatabaseHelper {
     public static final String CREATE_DOMAINS_TABLE = "CREATE TABLE IF NOT EXISTS domains (domain_id INTEGER PRIMARY KEY AUTOINCREMENT, domain_url varchar(2000) NOT NULL UNIQUE, parent_url varchar(2000), search_depth INTEGER, date_visited INTEGER, visits INTEGER )";
     public static final String CREATE_LINKS_TABLE = "CREATE TABLE IF NOT EXISTS links (link_id INTEGER PRIMARY KEY AUTOINCREMENT, domain_url varchar(2000), link_url varchar(2000) NOT NULL UNIQUE, link_depth INTEGER, date_visited INTEGER, visits INTEGER, hit_count INTEGER, link_count INTEGER , flags VARCHAR(50)) ";
     //public static final String CREATE_ADDRESS_TABLE = "CREATE TABLE IF NOT EXISTS address (address_id INTEGER PRIMARY KEY AUTOINCREMENT, name varchar(2000), phone varchar(200), email varchar(200), index_ozk varchar(2000), category varchar(200), cityCode varchar(6), city varchar(2000), street varchar(2000), buildingNo varchar(20), apartamentNo varchar(20), blob varchar(2000), count INTEGER, timestamp INTEGER, domain_url varchar(2000), link_url varchar(2000) , flag varchar(200) ) ";
-    public static final String CREATE_ADDRESS_TABLE = "CREATE TABLE IF NOT EXISTS address (address_id INTEGER PRIMARY KEY AUTOINCREMENT, name varchar(2000), phone varchar(200), email varchar(200), index_ozk varchar(2000), category varchar(200), cityCode varchar(6), city varchar(2000), street varchar(2000), buildingNo varchar(20), apartamentNo varchar(20), blob varchar(2000), count INTEGER, timestamp INTEGER, domain_url varchar(2000), link_url varchar(2000) , flag varchar(200), pn  varchar(50), pn_wakacje varchar(50), wt varchar(50), wt_wakacje varchar(50), sr varchar(50), sr_wakacje varchar(50), czw varchar(50), czw_wakacje varchar(50), pt varchar(50), pt_wakacje varchar(50), so varchar(50), so_wakacje varchar(50), nd varchar(50), nd_wakacje varchar(50), sw varchar(50), forma_dzialanosci varchar(50), podjazd varchar(50), wnetrze varchar(50), nieslyszacy varchar(50), niewidomi varchar(50), rodzic_z_dzieckiem varchar(50), windy varchar(50), toalety varchar(50), inne varchar(50), komentarz varchar(2000), komentarz_korespondenta varchar(50)   ) ";
+    public static final String CREATE_ADDRESS_TABLE = "CREATE TABLE IF NOT EXISTS address (address_id INTEGER PRIMARY KEY AUTOINCREMENT, name varchar(2000), phone varchar(200), email varchar(200), index_ozk varchar(2000), category varchar(200), cityCode varchar(6), city varchar(2000), street varchar(2000), buildingNo varchar(20), apartamentNo varchar(20), blob varchar(2000), count INTEGER, timestamp INTEGER, domain_url varchar(2000), link_url varchar(2000) , flag varchar(200), pn  varchar(50), pn_wakacje varchar(50), wt varchar(50), wt_wakacje varchar(50), sr varchar(50), sr_wakacje varchar(50), czw varchar(50), czw_wakacje varchar(50), pt varchar(50), pt_wakacje varchar(50), so varchar(50), so_wakacje varchar(50), nd varchar(50), nd_wakacje varchar(50), sw varchar(50), forma_dzialanosci varchar(50), podjazd varchar(50), wnetrze varchar(50), nieslyszacy varchar(50), niewidomi varchar(50), rodzic_z_dzieckiem varchar(50), windy varchar(50), toalety varchar(50), inne varchar(50), komentarz varchar(2000), komentarz_korespondenta varchar(50), strona_www varchar(2000)   ) ";
     
     private Connection conn;
     private Statement stat;
@@ -143,11 +143,11 @@ public class DatabaseHelper {
     
 
     public boolean insertAddress(Address a) {
-        return insertAddress(a.getName(), a.getPhone(), a.getEmail(), a.getIndex(), a.getCategory(), a.getCityCode(), a.getCity(), a.getStreet(), a.getDomain(), a.getLink().toString() , a.getBlob(), a.getTimestamp(), a.getBuildingNo(), a.getApartamentNo(), a.getCount(), a.getFlag(), a.getPn(), a.getPn_wakacje(), a.getWt(), a.getWt_wakacje(), a.getSr(), a.getSr_wakacje(), a.getCzw(), a.getCzw_wakajce(), a.getPt(), a.getPt_wakacje(), a.getSo(), a.getSo_wakacje(), a.getNd(), a.getNd_wakacje(), a.getSw(), a.getFormaDzialanosci(), a.getPodjazd(), a.getWnetrze(), a.getNieslyszacy(), a.getNiewidomi(), a.getRodzic_z_dzieckiem(), a.getWindy(), a.getToalety(), a.getInne(), a.getKomentarz(), a.getKomentarz_korespondenta() );
+        return insertAddress(a.getName(), a.getPhone(), a.getEmail(), a.getIndex(), a.getCategory(), a.getCityCode(), a.getCity(), a.getStreet(), a.getDomain(), a.getLink().toString() , a.getBlob(), a.getTimestamp(), a.getBuildingNo(), a.getApartamentNo(), a.getCount(), a.getFlag(), a.getPn(), a.getPn_wakacje(), a.getWt(), a.getWt_wakacje(), a.getSr(), a.getSr_wakacje(), a.getCzw(), a.getCzw_wakajce(), a.getPt(), a.getPt_wakacje(), a.getSo(), a.getSo_wakacje(), a.getNd(), a.getNd_wakacje(), a.getSw(), a.getFormaDzialanosci(), a.getPodjazd(), a.getWnetrze(), a.getNieslyszacy(), a.getNiewidomi(), a.getRodzic_z_dzieckiem(), a.getWindy(), a.getToalety(), a.getInne(), a.getKomentarz(), a.getKomentarz_korespondenta(), a.getStrona_www() );
     }    
-    public boolean insertAddress( String name, String phone, String email, String index, String category, String cityCode, String city, String street, String domain, String link, String blob, long timestamp, String buildingNo, String apartamentNo, int count, String flag, String pn, String pn_wakacje, String wt, String wt_wakacje, String sr, String sr_wakacje, String czw, String czw_wakacje, String pt, String pt_wakacje, String so, String so_wakacje, String nd, String nd_wakacje, String sw, String forma_dzialanosci, String podjazd, String wnetrze, String nieslyszacy, String niewidomi, String rodzic_z_dzieckiem, String windy, String toalety, String inne, String komentarz, String komentarz_korespondenta) {
+    public boolean insertAddress( String name, String phone, String email, String index, String category, String cityCode, String city, String street, String domain, String link, String blob, long timestamp, String buildingNo, String apartamentNo, int count, String flag, String pn, String pn_wakacje, String wt, String wt_wakacje, String sr, String sr_wakacje, String czw, String czw_wakacje, String pt, String pt_wakacje, String so, String so_wakacje, String nd, String nd_wakacje, String sw, String forma_dzialanosci, String podjazd, String wnetrze, String nieslyszacy, String niewidomi, String rodzic_z_dzieckiem, String windy, String toalety, String inne, String komentarz, String komentarz_korespondenta, String strona_www ) {
         try {
-            PreparedStatement prepStmt = conn.prepareStatement("insert or replace into address values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+            PreparedStatement prepStmt = conn.prepareStatement("insert or replace into address values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
             prepStmt.setString(1, name);
             prepStmt.setString(2, phone);
             prepStmt.setString(3, email);
@@ -190,6 +190,7 @@ public class DatabaseHelper {
             prepStmt.setString(40, inne );
             prepStmt.setString(41, komentarz );
             prepStmt.setString(42, komentarz_korespondenta );
+            prepStmt.setString(43, strona_www );
             prepStmt.execute();
         } catch (SQLException e) {
             Logger.error("Error on address insert", e);
@@ -261,6 +262,7 @@ public class DatabaseHelper {
                 newAddress.setInne( result.getString( "inne" ) );
                 newAddress.setKomentarz( result.getString( "komentarz" ) );
                 newAddress.setKomentarz_korespondenta( result.getString( "komentarz_korespondenta" ) );
+                newAddress.setStrona_www( result.getString( "strona_www" ) );
 
                 addresses.add(newAddress);
             }

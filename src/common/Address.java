@@ -6,13 +6,14 @@ public class Address {
 
         private String name=null, phone=null, email=null, index=null, cityCode=null, city=null, street=null, domain=null, blob=null, buildingNo=null, apartamentNo=null, flag=null, category=null;
 	private String htmlString = null;
+       
         private long timestamp;
 	private int addressId,  count;
 	private Url link;
 	
         String formaDzialanosci=null, pn=null, wt=null,sr=null,czw=null,pt=null,so=null,nd=null,sw=null,pn_wakacje=null,wt_wakacje=null,sr_wakacje=null,czw_wakajce=null,pt_wakacje=null,so_wakacje=null,nd_wakacje=null;
         String podjazd=null,wnetrze=null,nieslyszacy=null,niewidomi=null,rodzic_z_dzieckiem=null,windy=null,toalety=null,inne=null;
-        String komentarz=null,komentarz_korespondenta=null;
+        String komentarz=null,komentarz_korespondenta=null, strona_www = null;
         
 	@Override
 	public boolean equals(Object o){
@@ -90,6 +91,14 @@ public class Address {
         this.timestamp = System.currentTimeMillis();             
     }
 
+    public void setStrona_www(String strona_www) {
+        this.strona_www = strona_www;
+    }
+
+    public String getStrona_www() {
+        return strona_www;
+    }
+    
     public void setCzw(String czw) {
         this.czw = czw;
     }
